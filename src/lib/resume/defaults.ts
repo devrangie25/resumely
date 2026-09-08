@@ -46,6 +46,7 @@ export function emptyResumeContent(): ResumeContent {
     references: [],
     sectionOrder: [...SECTION_IDS],
     sectionVisibility: emptyVisibility(),
+    theme: { primary: "" },
   };
 }
 
@@ -73,6 +74,12 @@ export function parseResumeContent(value: unknown): ResumeContent {
     sectionVisibility: {
       ...fallback.sectionVisibility,
       ...input.sectionVisibility,
+    },
+    theme: {
+      primary:
+        input.theme && typeof input.theme.primary === "string"
+          ? input.theme.primary
+          : "",
     },
   };
 }

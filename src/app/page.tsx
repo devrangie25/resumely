@@ -57,8 +57,8 @@ export default function HomePage() {
                 body: "Fill in personal details, experience, education, skills, and the rest. Empty sections stay hidden.",
               },
               {
-                title: "Three templates",
-                body: "Classic, Modern, and Minimal layouts that stay readable for recruiters and applicant tracking systems.",
+                title: "Templates you can tune",
+                body: "Classic, Modern, and Minimal families with multiple designs, icons, and colors you can adjust to match your style.",
               },
               {
                 title: "Save and export",

@@ -29,6 +29,12 @@ export const TEMPLATE_VARIANTS = [
     description: "Small-cap headings and extra space between sections.",
   },
   {
+    id: "classic-burgundy",
+    family: "classic",
+    label: "Burgundy",
+    description: "Formal serif with wine-red rules and headings.",
+  },
+  {
     id: "modern",
     family: "modern",
     label: "Slate",
@@ -53,6 +59,24 @@ export const TEMPLATE_VARIANTS = [
     description: "Warm rust sidebar and a softly rounded photo.",
   },
   {
+    id: "modern-coral",
+    family: "modern",
+    label: "Coral",
+    description: "Warm coral sidebar, icons, and skill pills.",
+  },
+  {
+    id: "modern-indigo",
+    family: "modern",
+    label: "Indigo",
+    description: "Deep indigo sidebar with a ringed portrait.",
+  },
+  {
+    id: "modern-banner",
+    family: "modern",
+    label: "Banner",
+    description: "Full-width color header with photo and icons.",
+  },
+  {
     id: "minimal",
     family: "minimal",
     label: "Air",
@@ -75,6 +99,24 @@ export const TEMPLATE_VARIANTS = [
     family: "minimal",
     label: "Accent",
     description: "A left color bar and tighter contemporary type.",
+  },
+  {
+    id: "minimal-mint",
+    family: "minimal",
+    label: "Mint",
+    description: "Teal headings, contact icons, and skill pills.",
+  },
+  {
+    id: "minimal-coral",
+    family: "minimal",
+    label: "Coral",
+    description: "Warm underlines and icon-led contact details.",
+  },
+  {
+    id: "minimal-navy",
+    family: "minimal",
+    label: "Navy",
+    description: "Navy type with a split header and icon row.",
   },
 ] as const;
 
@@ -226,6 +268,10 @@ export const sectionVisibilitySchema = z.object({
   references: z.boolean(),
 });
 
+export const resumeThemeSchema = z.object({
+  primary: z.string(),
+});
+
 export const resumeContentSchema = z.object({
   personal: personalSchema,
   summary: z.string(),
@@ -239,6 +285,7 @@ export const resumeContentSchema = z.object({
   references: z.array(referenceItemSchema),
   sectionOrder: z.array(z.enum(SECTION_IDS)),
   sectionVisibility: sectionVisibilitySchema,
+  theme: resumeThemeSchema.default({ primary: "" }),
 });
 
 export type PersonalInfo = z.infer<typeof personalSchema>;

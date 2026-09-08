@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ColorPicker } from "@/components/editor/color-picker";
 import { PhotoUpload } from "@/components/editor/photo-upload";
 import { TemplateCarousel } from "@/components/editor/template-carousel";
 import { DownloadPdfButton } from "@/components/pdf/download-pdf-button";
-import { ScaledPreview } from "@/components/resume/scaled-preview";
+import { PagedPreview } from "@/components/resume/paged-preview";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -231,7 +232,7 @@ export function ResumeEditor({
     />
   ) : (
     <div className="grid justify-items-center gap-3">
-      <ScaledPreview content={content} templateId={templateId} scale={0.72} />
+      <PagedPreview content={content} templateId={templateId} scale={0.72} />
       <Button
         type="button"
         variant="outline"
@@ -249,7 +250,12 @@ export function ResumeEditor({
       onSelect={selectVariant}
     />
   ) : (
-    <ScaledPreview content={content} templateId={templateId} scale={0.55} />
+    <PagedPreview
+      content={content}
+      templateId={templateId}
+      fitToWidth
+      showPageLabel
+    />
   );
 
   return (
@@ -274,11 +280,14 @@ export function ResumeEditor({
               >
                 Preview
               </Button>
-              <SheetContent side="bottom" className="h-[90vh] overflow-auto">
-                <SheetHeader>
+              <SheetContent
+                side="bottom"
+                className="h-[92vh] max-h-[92vh] gap-0 overflow-hidden p-0"
+              >
+                <SheetHeader className="border-b">
                   <SheetTitle>Resume preview</SheetTitle>
                 </SheetHeader>
-                <div className="flex justify-center overflow-auto p-4">
+                <div className="min-h-0 flex-1 overflow-auto px-3 py-4">
                   {mobilePreview}
                 </div>
               </SheetContent>
@@ -297,14 +306,17 @@ export function ResumeEditor({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Resume title">
+        <div className="grid items-start gap-x-3 gap-y-3 sm:grid-cols-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="resume-title">Resume title</Label>
             <Input
+              id="resume-title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
-          </Field>
-          <Field label="Template">
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="resume-template">Template</Label>
             <Select
               value={browsingFamily ?? family}
               onValueChange={(value) => {
@@ -316,7 +328,7 @@ export function ResumeEditor({
                 }
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="resume-template" className="h-8 w-full min-w-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -327,8 +339,10 @@ export function ResumeEditor({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
             {!browsingFamily ? (
-              <div className="flex flex-wrap items-center gap-2">
+              <>
                 <p className="text-xs text-muted-foreground">
                   Using {variant.label}.
                 </p>
@@ -341,13 +355,23 @@ export function ResumeEditor({
                 >
                   Browse designs
                 </Button>
-              </div>
+              </>
             ) : (
               <p className="text-xs text-muted-foreground">
                 Slide through the designs, then choose one to lock it in.
               </p>
             )}
-          </Field>
+          </div>
+          <ColorPicker
+            value={content.theme?.primary ?? ""}
+            templateId={templateId}
+            onChange={(primary) =>
+              setContent((current) => ({
+                ...current,
+                theme: { primary },
+              }))
+            }
+          />
         </div>
 
         <Accordion multiple defaultValue={["personal", "summary", "experience"]}>

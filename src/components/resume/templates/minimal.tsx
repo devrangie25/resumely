@@ -1,56 +1,42 @@
-import { BulletList, contactItems, dateRange, joinNonEmpty } from "@/components/resume/shared";
+import {
+  BulletList,
+  SkillPills,
+  contactEntries,
+  dateRange,
+  joinNonEmpty,
+} from "@/components/resume/shared";
 import {
   SECTION_LABELS,
   type ResumeContent,
   type SectionId,
   type TemplateId,
 } from "@/lib/resume/schema";
+import { resolveTheme } from "@/lib/resume/theme";
 import { getVisibleSections } from "@/lib/resume/visibility";
-
-const minimalThemes = {
-  minimal: {
-    article: "font-sans text-[11.5px] leading-relaxed text-zinc-800",
-    name: "text-[28px] leading-none font-light tracking-tight text-zinc-950",
-    heading: "mb-3 text-[10px] font-medium tracking-[0.22em] text-zinc-500 uppercase",
-    header: "border-b border-zinc-200 pb-5",
-    split: false,
-  },
-  "minimal-serif": {
-    article: "font-serif text-[11.5px] leading-relaxed text-stone-800",
-    name: "text-[28px] leading-none font-normal tracking-tight text-stone-950",
-    heading: "mb-3 text-[10px] font-medium tracking-[0.2em] text-stone-500 uppercase",
-    header: "border-b border-stone-300 pb-5",
-    split: false,
-  },
-  "minimal-split": {
-    article: "font-sans text-[11.5px] leading-relaxed text-zinc-800",
-    name: "text-[26px] leading-none font-light tracking-tight text-zinc-950",
-    heading: "mb-3 text-[10px] font-medium tracking-[0.22em] text-zinc-500 uppercase",
-    header: "border-b border-zinc-200 pb-5",
-    split: true,
-  },
-  "minimal-accent": {
-    article:
-      "border-l-4 border-zinc-900 pl-5 font-sans text-[11.5px] leading-relaxed text-zinc-800",
-    name: "text-[26px] leading-none font-medium tracking-tight text-zinc-950",
-    heading: "mb-3 text-[10px] font-semibold tracking-[0.18em] text-zinc-800 uppercase",
-    header: "border-b border-zinc-300 pb-5",
-    split: false,
-  },
-} as const;
+import { cn } from "@/lib/utils";
 
 function Section({
   id,
-  headingClass,
+  color,
+  underline,
   children,
 }: {
   id: SectionId;
-  headingClass: string;
+  color: string;
+  underline?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <section className="mt-7">
-      <h2 className={headingClass}>{SECTION_LABELS[id]}</h2>
+      <h2
+        className={cn(
+          "mb-3 text-[10px] font-semibold tracking-[0.2em] uppercase",
+          underline && "border-b pb-1",
+        )}
+        style={{ color, borderColor: underline ? color : undefined }}
+      >
+        {SECTION_LABELS[id]}
+      </h2>
       {children}
     </section>
   );
@@ -63,18 +49,37 @@ export function MinimalTemplate({
   content: ResumeContent;
   variant?: TemplateId;
 }) {
-  const theme =
-    minimalThemes[variant as keyof typeof minimalThemes] ?? minimalThemes.minimal;
+  const theme = resolveTheme(variant, content.theme?.primary);
   const sections = getVisibleSections(content);
-  const contacts = contactItems(content);
+  const contacts = contactEntries(content);
+  const skills = content.skills.map((skill) => skill.name);
+  const colorful = ["minimal-mint", "minimal-coral", "minimal-navy"].includes(
+    variant,
+  );
+  const serif = theme.font === "serif";
 
   return (
-    <article className={theme.article}>
-      <header className={theme.header}>
-        {theme.split ? (
+    <article
+      className={cn(
+        "text-[11.5px] leading-relaxed text-zinc-800",
+        serif ? "font-serif" : "font-sans",
+        theme.modernLayout === "rail" && "border-l-4 pl-5",
+      )}
+      style={
+        theme.modernLayout === "rail" ? { borderColor: theme.heading } : undefined
+      }
+    >
+      <header
+        className="pb-5"
+        style={{ borderBottomWidth: 1, borderBottomColor: theme.rule }}
+      >
+        {theme.splitHeader ? (
           <div className="grid grid-cols-[1.3fr_0.7fr] items-end gap-6">
             <div>
-              <h1 className={theme.name}>
+              <h1
+                className="text-[26px] leading-none font-light tracking-tight"
+                style={{ color: colorful ? theme.heading : "#09090b" }}
+              >
                 {content.personal.fullName || "Your Name"}
               </h1>
               {content.personal.headline ? (
@@ -85,15 +90,35 @@ export function MinimalTemplate({
             </div>
             {contacts.length ? (
               <ul className="space-y-1 text-right text-[10.5px] leading-5 text-zinc-500">
-                {contacts.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
+                {contacts.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li
+                      key={item.kind}
+                      className="flex items-center justify-end gap-1.5"
+                    >
+                      <span>{item.value}</span>
+                      <Icon
+                        className="size-3 shrink-0"
+                        style={{ color: theme.heading }}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             ) : null}
           </div>
         ) : (
           <>
-            <h1 className={theme.name}>
+            <h1
+              className={cn(
+                "leading-none tracking-tight",
+                colorful
+                  ? "text-[26px] font-medium"
+                  : "text-[28px] font-light",
+              )}
+              style={{ color: colorful ? theme.heading : "#09090b" }}
+            >
               {content.personal.fullName || "Your Name"}
             </h1>
             {content.personal.headline ? (
@@ -102,22 +127,39 @@ export function MinimalTemplate({
               </p>
             ) : null}
             {contacts.length ? (
-              <p className="mt-3 text-[10.5px] text-zinc-500">
-                {contacts.join("  /  ")}
-              </p>
+              colorful ? (
+                <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10.5px] text-zinc-600">
+                  {contacts.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.kind} className="flex items-center gap-1.5">
+                        <Icon
+                          className="size-3 shrink-0"
+                          style={{ color: theme.heading }}
+                        />
+                        <span>{item.value}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="mt-3 text-[10.5px] text-zinc-500">
+                  {contacts.map((item) => item.value).join("  /  ")}
+                </p>
+              )
             ) : null}
           </>
         )}
       </header>
 
       {sections.includes("summary") ? (
-        <Section headingClass={theme.heading} id="summary">
+        <Section id="summary" color={theme.heading} underline={colorful}>
           <p className="max-w-prose">{content.summary}</p>
         </Section>
       ) : null}
 
       {sections.includes("experience") ? (
-        <Section headingClass={theme.heading} id="experience">
+        <Section id="experience" color={theme.heading} underline={colorful}>
           <div className="space-y-5">
             {content.experience.map((item) => (
               <div key={item.id}>
@@ -129,7 +171,7 @@ export function MinimalTemplate({
                     {dateRange(item.startDate, item.endDate, item.current)}
                   </p>
                 </div>
-                <p className="text-zinc-600">
+                <p style={{ color: theme.company }}>
                   {joinNonEmpty([item.company, item.location], " · ")}
                 </p>
                 <BulletList items={item.bullets} />
@@ -140,7 +182,7 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("education") ? (
-        <Section headingClass={theme.heading} id="education">
+        <Section id="education" color={theme.heading} underline={colorful}>
           <div className="space-y-3">
             {content.education.map((item) => (
               <div key={item.id}>
@@ -161,21 +203,27 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("skills") ? (
-        <Section headingClass={theme.heading} id="skills">
-          <p className="text-zinc-700">
-            {content.skills.map((skill) => skill.name).filter(Boolean).join("  ·  ")}
-          </p>
+        <Section id="skills" color={theme.heading} underline={colorful}>
+          {theme.skillStyle === "pills" ? (
+            <SkillPills names={skills} color={theme.heading} />
+          ) : (
+            <p className="text-zinc-700">
+              {skills.filter(Boolean).join("  ·  ")}
+            </p>
+          )}
         </Section>
       ) : null}
 
       {sections.includes("projects") ? (
-        <Section headingClass={theme.heading} id="projects">
+        <Section id="projects" color={theme.heading} underline={colorful}>
           <div className="space-y-3">
             {content.projects.map((item) => (
               <div key={item.id}>
                 <p className="font-medium text-zinc-950">{item.name}</p>
                 {item.url ? (
-                  <p className="text-[10.5px] text-zinc-500">{item.url}</p>
+                  <p className="text-[10.5px]" style={{ color: theme.company }}>
+                    {item.url}
+                  </p>
                 ) : null}
                 {item.description ? <p>{item.description}</p> : null}
                 <BulletList items={item.bullets} />
@@ -186,7 +234,7 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("certifications") ? (
-        <Section headingClass={theme.heading} id="certifications">
+        <Section id="certifications" color={theme.heading} underline={colorful}>
           {content.certifications.map((item) => (
             <p key={item.id} className="mb-1">
               {joinNonEmpty([item.name, item.issuer, item.date], " · ")}
@@ -196,7 +244,7 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("languages") ? (
-        <Section headingClass={theme.heading} id="languages">
+        <Section id="languages" color={theme.heading} underline={colorful}>
           <p>
             {content.languages
               .filter((item) => item.name.trim())
@@ -211,7 +259,7 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("awards") ? (
-        <Section headingClass={theme.heading} id="awards">
+        <Section id="awards" color={theme.heading} underline={colorful}>
           {content.awards.map((item) => (
             <p key={item.id} className="mb-1">
               {joinNonEmpty([item.title, item.issuer, item.date], " · ")}
@@ -222,7 +270,7 @@ export function MinimalTemplate({
       ) : null}
 
       {sections.includes("references") ? (
-        <Section headingClass={theme.heading} id="references">
+        <Section id="references" color={theme.heading} underline={colorful}>
           {content.references.map((item) => (
             <p key={item.id} className="mb-1">
               {joinNonEmpty(

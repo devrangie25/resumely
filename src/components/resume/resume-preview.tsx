@@ -12,17 +12,20 @@ export function ResumePreview({
   content,
   templateId,
   className,
+  chrome = true,
 }: {
   content: ResumeContent;
   templateId: TemplateId;
   className?: string;
+  chrome?: boolean;
 }) {
   const family = getTemplateFamily(templateId);
 
   return (
     <div
       className={cn(
-        "w-[210mm] min-h-[297mm] overflow-hidden bg-white text-zinc-900 shadow-lg ring-1 ring-zinc-200",
+        "w-[210mm] min-h-[297mm] bg-white text-zinc-900",
+        chrome && "shadow-lg ring-1 ring-zinc-200",
         family === "modern" ? "p-0" : "px-10 py-10",
         className,
       )}

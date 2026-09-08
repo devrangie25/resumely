@@ -113,4 +113,5 @@ export const sampleResumeContent: ResumeContent = {
     ...emptyVisibility(),
     references: false,
   },
+  theme: { primary: "" },
 };

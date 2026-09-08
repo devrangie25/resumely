@@ -12,7 +12,7 @@ export function ScaledPreview({
 }) {
   return (
     <div
-      className="overflow-hidden"
+      className="overflow-hidden shadow-lg ring-1 ring-zinc-200"
       style={{
         width: `calc(210mm * ${scale})`,
         height: `calc(297mm * ${scale})`,
@@ -22,7 +22,7 @@ export function ScaledPreview({
         className="origin-top-left"
         style={{ transform: `scale(${scale})` }}
       >
-        <ResumePreview content={content} templateId={templateId} />
+        <ResumePreview content={content} templateId={templateId} chrome={false} />
       </div>
     </div>
   );

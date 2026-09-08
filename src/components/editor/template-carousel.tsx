@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { ScaledPreview } from "@/components/resume/scaled-preview";
@@ -24,7 +24,22 @@ export function TemplateCarousel({
 }) {
   const variants = variantsForFamily(family);
   const [index, setIndex] = useState(0);
+  const [scale, setScale] = useState(0.52);
+  const frameRef = useRef<HTMLDivElement>(null);
   const current = variants[index];
+
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const update = () => {
+      const pageWidthPx = (210 / 25.4) * 96;
+      setScale(Math.min(0.52, (frame.clientWidth - 16) / pageWidthPx));
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     setIndex(0);
@@ -50,7 +65,7 @@ export function TemplateCarousel({
         </p>
       </div>
 
-      <div className="relative w-full overflow-hidden">
+      <div ref={frameRef} className="relative w-full overflow-hidden">
         <div
           className="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{ transform: `translateX(-${index * 100}%)` }}
@@ -68,7 +83,7 @@ export function TemplateCarousel({
                 <ScaledPreview
                   content={content}
                   templateId={variant.id}
-                  scale={0.52}
+                  scale={scale}
                 />
               </button>
             </div>

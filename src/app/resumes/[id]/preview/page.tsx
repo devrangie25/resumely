@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { DownloadPdfButton } from "@/components/pdf/download-pdf-button";
-import { ResumePreview } from "@/components/resume/resume-preview";
-import { ScaledPreview } from "@/components/resume/scaled-preview";
+import { PreviewStage } from "@/components/resume/preview-stage";
 import { buttonVariants } from "@/components/ui/button";
 import { parseResumeContent } from "@/lib/resume/defaults";
 import { isTemplateId, type TemplateId } from "@/lib/resume/schema";
@@ -40,23 +39,23 @@ export default async function PreviewResumePage({
   return (
     <div className="flex min-h-full flex-col bg-zinc-100">
       <AppHeader email={userData.user?.email} />
-      <main id="main-content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">
+      <div className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur-sm">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
+          <div className="min-w-0">
+            <p className="truncate text-xs text-muted-foreground sm:text-sm">
               <Link href="/dashboard" className="underline-offset-4 hover:underline">
                 Dashboard
               </Link>{" "}
               / Preview
             </p>
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            <h1 className="font-heading truncate text-lg font-semibold tracking-tight sm:text-2xl">
               {resume.title}
             </h1>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex shrink-0 flex-wrap justify-end gap-2">
             <Link
               href={`/resumes/${resume.id}/edit`}
-              className={buttonVariants({ variant: "outline" })}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               Edit
             </Link>
@@ -67,14 +66,12 @@ export default async function PreviewResumePage({
             />
           </div>
         </div>
-        <div className="flex justify-center overflow-auto pb-10">
-          <div className="lg:hidden">
-            <ScaledPreview content={content} templateId={templateId} scale={0.62} />
-          </div>
-          <div className="hidden lg:block">
-            <ResumePreview content={content} templateId={templateId} />
-          </div>
-        </div>
+      </div>
+      <main
+        id="main-content"
+        className="mx-auto w-full max-w-5xl flex-1 px-3 py-4 sm:px-4 sm:py-6"
+      >
+        <PreviewStage content={content} templateId={templateId} />
       </main>
     </div>
   );
