@@ -7,7 +7,7 @@ import { ResumePreview } from "@/components/resume/resume-preview";
 import { ScaledPreview } from "@/components/resume/scaled-preview";
 import { buttonVariants } from "@/components/ui/button";
 import { parseResumeContent } from "@/lib/resume/defaults";
-import { TEMPLATE_IDS, type TemplateId } from "@/lib/resume/schema";
+import { isTemplateId, type TemplateId } from "@/lib/resume/schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -32,8 +32,8 @@ export default async function PreviewResumePage({
     notFound();
   }
 
-  const templateId = TEMPLATE_IDS.includes(resume.template_id as TemplateId)
-    ? (resume.template_id as TemplateId)
+  const templateId: TemplateId = isTemplateId(resume.template_id)
+    ? resume.template_id
     : "classic";
   const content = parseResumeContent(resume.content);
 

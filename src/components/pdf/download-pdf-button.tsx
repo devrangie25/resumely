@@ -23,8 +23,27 @@ export function DownloadPdfButton({
         import("@react-pdf/renderer"),
         import("@/components/pdf/resume-pdf"),
       ]);
+      let photoSrc = content.personal.photoUrl;
+      if (photoSrc) {
+        try {
+          const response = await fetch(photoSrc);
+          const imageBlob = await response.blob();
+          photoSrc = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result));
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(imageBlob);
+          });
+        } catch {
+          photoSrc = content.personal.photoUrl;
+        }
+      }
       const blob = await pdf(
-        <ResumePdf content={content} templateId={templateId} />,
+        <ResumePdf
+          content={content}
+          templateId={templateId}
+          photoSrc={photoSrc || undefined}
+        />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");

@@ -1,7 +1,119 @@
 import { z } from "zod";
 
-export const TEMPLATE_IDS = ["classic", "modern", "minimal"] as const;
-export type TemplateId = (typeof TEMPLATE_IDS)[number];
+export const TEMPLATE_FAMILIES = ["classic", "modern", "minimal"] as const;
+export type TemplateFamily = (typeof TEMPLATE_FAMILIES)[number];
+
+export const TEMPLATE_VARIANTS = [
+  {
+    id: "classic",
+    family: "classic",
+    label: "Traditional",
+    description: "Centered serif layout that reads well in applicant systems.",
+  },
+  {
+    id: "classic-navy",
+    family: "classic",
+    label: "Navy Formal",
+    description: "Left-aligned headings with a deep navy accent.",
+  },
+  {
+    id: "classic-executive",
+    family: "classic",
+    label: "Executive",
+    description: "Strong rules and compact type for senior roles.",
+  },
+  {
+    id: "classic-academic",
+    family: "classic",
+    label: "Academic",
+    description: "Small-cap headings and extra space between sections.",
+  },
+  {
+    id: "modern",
+    family: "modern",
+    label: "Slate",
+    description: "Dark sidebar, teal accents, and a circular photo.",
+  },
+  {
+    id: "modern-navy",
+    family: "modern",
+    label: "Navy",
+    description: "Navy sidebar with a ringed circular portrait.",
+  },
+  {
+    id: "modern-emerald",
+    family: "modern",
+    label: "Emerald",
+    description: "Green sidebar and a square cropped photo.",
+  },
+  {
+    id: "modern-sunset",
+    family: "modern",
+    label: "Sunset",
+    description: "Warm rust sidebar and a softly rounded photo.",
+  },
+  {
+    id: "minimal",
+    family: "minimal",
+    label: "Air",
+    description: "Open whitespace and thin rules.",
+  },
+  {
+    id: "minimal-serif",
+    family: "minimal",
+    label: "Serif",
+    description: "Editorial serif headings on a quiet page.",
+  },
+  {
+    id: "minimal-split",
+    family: "minimal",
+    label: "Split",
+    description: "Name on the left and contact details on the right.",
+  },
+  {
+    id: "minimal-accent",
+    family: "minimal",
+    label: "Accent",
+    description: "A left color bar and tighter contemporary type.",
+  },
+] as const;
+
+export type TemplateId = (typeof TEMPLATE_VARIANTS)[number]["id"];
+export const TEMPLATE_IDS = TEMPLATE_VARIANTS.map(
+  (variant) => variant.id,
+) as TemplateId[];
+
+export const FAMILY_LABELS: Record<TemplateFamily, string> = {
+  classic: "Classic",
+  modern: "Modern",
+  minimal: "Minimal",
+};
+
+export function isTemplateId(value: string): value is TemplateId {
+  return TEMPLATE_IDS.includes(value as TemplateId);
+}
+
+export function getTemplateFamily(templateId: string): TemplateFamily {
+  if (templateId.startsWith("modern")) return "modern";
+  if (templateId.startsWith("minimal")) return "minimal";
+  return "classic";
+}
+
+export function getTemplateVariant(templateId: string) {
+  return (
+    TEMPLATE_VARIANTS.find((variant) => variant.id === templateId) ??
+    TEMPLATE_VARIANTS[0]
+  );
+}
+
+export function variantsForFamily(family: TemplateFamily) {
+  return TEMPLATE_VARIANTS.filter((variant) => variant.family === family);
+}
+
+export function getTemplateDisplayLabel(templateId: string) {
+  const variant = getTemplateVariant(templateId);
+  return `${FAMILY_LABELS[variant.family]} · ${variant.label}`;
+}
 
 export const SECTION_IDS = [
   "summary",
@@ -33,6 +145,7 @@ export const personalSchema = z.object({
   website: z.string(),
   linkedin: z.string(),
   github: z.string(),
+  photoUrl: z.string(),
 });
 
 export const experienceItemSchema = z.object({
@@ -139,11 +252,12 @@ export type AwardItem = z.infer<typeof awardItemSchema>;
 export type ReferenceItem = z.infer<typeof referenceItemSchema>;
 export type ResumeContent = z.infer<typeof resumeContentSchema>;
 
-export const TEMPLATE_LABELS: Record<TemplateId, string> = {
-  classic: "Classic",
-  modern: "Modern",
-  minimal: "Minimal",
-};
+export const TEMPLATE_LABELS: Record<TemplateId, string> = Object.fromEntries(
+  TEMPLATE_VARIANTS.map((variant) => [
+    variant.id,
+    `${FAMILY_LABELS[variant.family]} · ${variant.label}`,
+  ]),
+) as Record<TemplateId, string>;
 
 export const SECTION_LABELS: Record<SectionId, string> = {
   summary: "Professional Summary",

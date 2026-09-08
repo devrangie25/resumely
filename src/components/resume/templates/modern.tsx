@@ -1,10 +1,58 @@
 import { BulletList, contactItems, dateRange, joinNonEmpty } from "@/components/resume/shared";
-import { SECTION_LABELS, type ResumeContent, type SectionId } from "@/lib/resume/schema";
+import {
+  SECTION_LABELS,
+  type ResumeContent,
+  type SectionId,
+  type TemplateId,
+} from "@/lib/resume/schema";
 import { getVisibleSections } from "@/lib/resume/visibility";
+import { cn } from "@/lib/utils";
 
-function SidebarHeading({ children }: { children: React.ReactNode }) {
+const modernThemes = {
+  modern: {
+    sidebar: "bg-zinc-900 text-zinc-100",
+    accent: "text-teal-200",
+    heading: "text-teal-800",
+    company: "text-teal-800",
+    photo: "size-24 rounded-full",
+  },
+  "modern-navy": {
+    sidebar: "bg-[#0f2744] text-slate-100",
+    accent: "text-sky-200",
+    heading: "text-sky-900",
+    company: "text-sky-800",
+    photo: "size-24 rounded-full ring-2 ring-sky-200/70",
+  },
+  "modern-emerald": {
+    sidebar: "bg-emerald-950 text-emerald-50",
+    accent: "text-emerald-200",
+    heading: "text-emerald-800",
+    company: "text-emerald-800",
+    photo: "size-24 rounded-md",
+  },
+  "modern-sunset": {
+    sidebar: "bg-orange-950 text-orange-50",
+    accent: "text-orange-200",
+    heading: "text-orange-800",
+    company: "text-orange-800",
+    photo: "size-24 rounded-2xl",
+  },
+} as const;
+
+function SidebarHeading({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className: string;
+}) {
   return (
-    <h2 className="mb-2 text-[10px] font-semibold tracking-[0.18em] text-teal-200 uppercase">
+    <h2
+      className={cn(
+        "mb-2 text-[10px] font-semibold tracking-[0.18em] uppercase",
+        className,
+      )}
+    >
       {children}
     </h2>
   );
@@ -12,14 +60,21 @@ function SidebarHeading({ children }: { children: React.ReactNode }) {
 
 function MainSection({
   id,
+  headingClass,
   children,
 }: {
   id: SectionId;
+  headingClass: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="mt-4 first:mt-0">
-      <h2 className="mb-2 text-[11px] font-semibold tracking-[0.16em] text-teal-800 uppercase">
+      <h2
+        className={cn(
+          "mb-2 text-[11px] font-semibold tracking-[0.16em] uppercase",
+          headingClass,
+        )}
+      >
         {SECTION_LABELS[id]}
       </h2>
       {children}
@@ -27,7 +82,15 @@ function MainSection({
   );
 }
 
-export function ModernTemplate({ content }: { content: ResumeContent }) {
+export function ModernTemplate({
+  content,
+  variant = "modern",
+}: {
+  content: ResumeContent;
+  variant?: TemplateId;
+}) {
+  const theme =
+    modernThemes[variant as keyof typeof modernThemes] ?? modernThemes.modern;
   const sections = getVisibleSections(content);
   const contacts = contactItems(content);
   const sidebarSections = sections.filter((section) =>
@@ -36,22 +99,31 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
   const mainSections = sections.filter(
     (section) => !sidebarSections.includes(section),
   );
+  const photoUrl = content.personal.photoUrl?.trim();
 
   return (
     <article className="grid min-h-[297mm] grid-cols-[72mm_1fr] font-sans text-[11px] leading-relaxed text-zinc-800">
-      <aside className="bg-zinc-900 px-5 py-8 text-zinc-100">
+      <aside className={cn("px-5 py-8", theme.sidebar)}>
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={content.personal.fullName || "Profile photo"}
+            className={cn("mb-5 object-cover", theme.photo)}
+          />
+        ) : null}
         <h1 className="text-[22px] leading-tight font-semibold tracking-tight text-white">
           {content.personal.fullName || "Your Name"}
         </h1>
         {content.personal.headline ? (
-          <p className="mt-2 text-[11px] text-teal-200">
+          <p className={cn("mt-2 text-[11px]", theme.accent)}>
             {content.personal.headline}
           </p>
         ) : null}
 
         {contacts.length ? (
           <div className="mt-8">
-            <SidebarHeading>Contact</SidebarHeading>
+            <SidebarHeading className={theme.accent}>Contact</SidebarHeading>
             <ul className="space-y-1.5 break-words text-[10.5px] text-zinc-200">
               {contacts.map((item) => (
                 <li key={item}>{item}</li>
@@ -62,7 +134,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
 
         {sidebarSections.includes("skills") ? (
           <div className="mt-7">
-            <SidebarHeading>Skills</SidebarHeading>
+            <SidebarHeading className={theme.accent}>Skills</SidebarHeading>
             <ul className="space-y-1 text-[10.5px]">
               {content.skills
                 .filter((skill) => skill.name.trim())
@@ -75,7 +147,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
 
         {sidebarSections.includes("languages") ? (
           <div className="mt-7">
-            <SidebarHeading>Languages</SidebarHeading>
+            <SidebarHeading className={theme.accent}>Languages</SidebarHeading>
             <ul className="space-y-1 text-[10.5px]">
               {content.languages
                 .filter((item) => item.name.trim())
@@ -91,7 +163,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
 
         {sidebarSections.includes("certifications") ? (
           <div className="mt-7">
-            <SidebarHeading>Certifications</SidebarHeading>
+            <SidebarHeading className={theme.accent}>Certifications</SidebarHeading>
             <ul className="space-y-2 text-[10.5px]">
               {content.certifications.map((item) => (
                 <li key={item.id}>
@@ -108,13 +180,13 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
 
       <div className="bg-white px-7 py-8">
         {mainSections.includes("summary") ? (
-          <MainSection id="summary">
+          <MainSection id="summary" headingClass={theme.heading}>
             <p>{content.summary}</p>
           </MainSection>
         ) : null}
 
         {mainSections.includes("experience") ? (
-          <MainSection id="experience">
+          <MainSection id="experience" headingClass={theme.heading}>
             <div className="space-y-3.5">
               {content.experience.map((item) => (
                 <div key={item.id}>
@@ -124,7 +196,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
                       {dateRange(item.startDate, item.endDate, item.current)}
                     </p>
                   </div>
-                  <p className="text-teal-800">
+                  <p className={theme.company}>
                     {joinNonEmpty([item.company, item.location])}
                   </p>
                   <BulletList items={item.bullets} />
@@ -135,7 +207,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
         ) : null}
 
         {mainSections.includes("education") ? (
-          <MainSection id="education">
+          <MainSection id="education" headingClass={theme.heading}>
             <div className="space-y-2.5">
               {content.education.map((item) => (
                 <div key={item.id}>
@@ -154,13 +226,13 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
         ) : null}
 
         {mainSections.includes("projects") ? (
-          <MainSection id="projects">
+          <MainSection id="projects" headingClass={theme.heading}>
             <div className="space-y-2.5">
               {content.projects.map((item) => (
                 <div key={item.id}>
                   <p className="font-semibold text-zinc-900">{item.name}</p>
                   {item.url ? (
-                    <p className="text-[10.5px] text-teal-800">{item.url}</p>
+                    <p className={cn("text-[10.5px]", theme.company)}>{item.url}</p>
                   ) : null}
                   {item.description ? <p>{item.description}</p> : null}
                   <BulletList items={item.bullets} />
@@ -171,7 +243,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
         ) : null}
 
         {mainSections.includes("awards") ? (
-          <MainSection id="awards">
+          <MainSection id="awards" headingClass={theme.heading}>
             {content.awards.map((item) => (
               <p key={item.id} className="mb-1.5">
                 <span className="font-semibold">{item.title}</span>
@@ -184,7 +256,7 @@ export function ModernTemplate({ content }: { content: ResumeContent }) {
         ) : null}
 
         {mainSections.includes("references") ? (
-          <MainSection id="references">
+          <MainSection id="references" headingClass={theme.heading}>
             {content.references.map((item) => (
               <p key={item.id} className="mb-1.5">
                 {joinNonEmpty(

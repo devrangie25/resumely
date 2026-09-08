@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
 import { dateRange, joinNonEmpty } from "@/components/resume/shared";
 import {
   SECTION_LABELS,
+  getTemplateFamily,
   type ResumeContent,
   type SectionId,
   type TemplateId,
@@ -262,7 +264,22 @@ const modern = StyleSheet.create({
   bullet: { fontSize: 10, marginLeft: 8, marginTop: 1 },
 });
 
-function ModernPdf({ content }: { content: ResumeContent }) {
+const modernPdfThemes = {
+  modern: { sidebar: "#18181b", accent: "#99f6e4", heading: "#115e59", photoRadius: 40 },
+  "modern-navy": { sidebar: "#0f2744", accent: "#bae6fd", heading: "#1e3a8a", photoRadius: 40 },
+  "modern-emerald": { sidebar: "#022c22", accent: "#a7f3d0", heading: "#047857", photoRadius: 6 },
+  "modern-sunset": { sidebar: "#431407", accent: "#fed7aa", heading: "#c2410c", photoRadius: 16 },
+} as const;
+
+function ModernPdf({
+  content,
+  variant,
+  photoSrc,
+}: {
+  content: ResumeContent;
+  variant: TemplateId;
+  photoSrc?: string;
+}) {
   const sections = getVisibleSections(content);
   const sidebar = sections.filter((section) =>
     ["skills", "languages", "certifications"].includes(section),
@@ -276,18 +293,37 @@ function ModernPdf({ content }: { content: ResumeContent }) {
     content.personal.linkedin,
     content.personal.github,
   ].filter((item) => item.trim());
+  const theme =
+    modernPdfThemes[variant as keyof typeof modernPdfThemes] ??
+    modernPdfThemes.modern;
 
   return (
     <Document>
       <Page size="A4" style={modern.page}>
-        <View style={modern.sidebar}>
+        <View style={[modern.sidebar, { backgroundColor: theme.sidebar }]}>
+          {photoSrc ? (
+            <Image
+              src={photoSrc}
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: theme.photoRadius,
+                objectFit: "cover",
+                marginBottom: 14,
+              }}
+            />
+          ) : null}
           <Text style={modern.name}>{content.personal.fullName || "Your Name"}</Text>
           {content.personal.headline ? (
-            <Text style={modern.headline}>{content.personal.headline}</Text>
+            <Text style={[modern.headline, { color: theme.accent }]}>
+              {content.personal.headline}
+            </Text>
           ) : null}
           {contacts.length ? (
             <View>
-              <Text style={modern.sideHeading}>Contact</Text>
+              <Text style={[modern.sideHeading, { color: theme.accent }]}>
+                Contact
+              </Text>
               {contacts.map((item) => (
                 <Text key={item} style={modern.sideItem}>
                   {item}
@@ -297,7 +333,9 @@ function ModernPdf({ content }: { content: ResumeContent }) {
           ) : null}
           {sidebar.includes("skills") ? (
             <View>
-              <Text style={modern.sideHeading}>Skills</Text>
+              <Text style={[modern.sideHeading, { color: theme.accent }]}>
+                Skills
+              </Text>
               {content.skills
                 .filter((skill) => skill.name.trim())
                 .map((skill) => (
@@ -309,7 +347,9 @@ function ModernPdf({ content }: { content: ResumeContent }) {
           ) : null}
           {sidebar.includes("languages") ? (
             <View>
-              <Text style={modern.sideHeading}>Languages</Text>
+              <Text style={[modern.sideHeading, { color: theme.accent }]}>
+                Languages
+              </Text>
               {content.languages
                 .filter((item) => item.name.trim())
                 .map((item) => (
@@ -322,7 +362,9 @@ function ModernPdf({ content }: { content: ResumeContent }) {
           ) : null}
           {sidebar.includes("certifications") ? (
             <View>
-              <Text style={modern.sideHeading}>Certifications</Text>
+              <Text style={[modern.sideHeading, { color: theme.accent }]}>
+                Certifications
+              </Text>
               {content.certifications.map((item) => (
                 <Text key={item.id} style={modern.sideItem}>
                   {joinNonEmpty([item.name, item.issuer, item.date])}
@@ -334,7 +376,12 @@ function ModernPdf({ content }: { content: ResumeContent }) {
         <View style={modern.main}>
           {main.map((section, index) => (
             <View key={section}>
-              <Text style={index === 0 ? modern.firstHeading : modern.heading}>
+              <Text
+                style={[
+                  index === 0 ? modern.firstHeading : modern.heading,
+                  { color: theme.heading },
+                ]}
+              >
                 {SECTION_LABELS[section]}
               </Text>
               <ClassicSection content={content} section={section} />
@@ -413,14 +460,23 @@ function MinimalPdf({ content }: { content: ResumeContent }) {
 export function ResumePdf({
   content,
   templateId,
+  photoSrc,
 }: {
   content: ResumeContent;
   templateId: TemplateId;
+  photoSrc?: string;
 }) {
-  if (templateId === "modern") {
-    return <ModernPdf content={content} />;
+  const family = getTemplateFamily(templateId);
+  if (family === "modern") {
+    return (
+      <ModernPdf
+        content={content}
+        variant={templateId}
+        photoSrc={photoSrc || content.personal.photoUrl || undefined}
+      />
+    );
   }
-  if (templateId === "minimal") {
+  if (family === "minimal") {
     return <MinimalPdf content={content} />;
   }
   return <ClassicPdf content={content} />;

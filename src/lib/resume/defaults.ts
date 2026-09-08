@@ -33,6 +33,7 @@ export function emptyResumeContent(): ResumeContent {
       website: "",
       linkedin: "",
       github: "",
+      photoUrl: "",
     },
     summary: "",
     experience: [],

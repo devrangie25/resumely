@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 
 import { emptyResumeContent, parseResumeContent } from "@/lib/resume/defaults";
 import {
+  isTemplateId,
   resumeContentSchema,
-  TEMPLATE_IDS,
   type ResumeContent,
   type TemplateId,
 } from "@/lib/resume/schema";
@@ -65,7 +65,7 @@ export async function updateResume(
     updates.title = payload.title.trim() || "Untitled Resume";
   }
 
-  if (payload.templateId && TEMPLATE_IDS.includes(payload.templateId)) {
+  if (payload.templateId && isTemplateId(payload.templateId)) {
     updates.template_id = payload.templateId;
   }
 

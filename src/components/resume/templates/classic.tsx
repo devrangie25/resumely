@@ -1,31 +1,78 @@
 import { BulletList, contactItems, dateRange, joinNonEmpty } from "@/components/resume/shared";
-import { SECTION_LABELS, type ResumeContent, type SectionId } from "@/lib/resume/schema";
+import {
+  SECTION_LABELS,
+  type ResumeContent,
+  type SectionId,
+  type TemplateId,
+} from "@/lib/resume/schema";
 import { getVisibleSections } from "@/lib/resume/visibility";
+import { cn } from "@/lib/utils";
+
+const classicThemes = {
+  classic: {
+    article: "font-serif text-[11.5px] leading-relaxed text-zinc-900",
+    header: "text-center",
+    heading:
+      "border-b border-zinc-800 pb-0.5 text-[11px] font-semibold tracking-[0.16em] uppercase",
+    section: "mt-4",
+  },
+  "classic-navy": {
+    article: "font-serif text-[11.5px] leading-relaxed text-slate-900",
+    header: "text-left",
+    heading:
+      "border-b border-[#1e3a5f] pb-0.5 text-[11px] font-semibold tracking-[0.14em] text-[#1e3a5f] uppercase",
+    section: "mt-4",
+  },
+  "classic-executive": {
+    article: "font-serif text-[11px] leading-snug text-zinc-900",
+    header: "text-center",
+    heading:
+      "border-b-2 border-zinc-900 pb-1 text-[10.5px] font-bold tracking-[0.2em] uppercase",
+    section: "mt-3.5",
+  },
+  "classic-academic": {
+    article: "font-serif text-[11.5px] leading-7 text-stone-900",
+    header: "text-left",
+    heading:
+      "border-b border-stone-400 pb-1 text-[10px] font-medium tracking-[0.22em] uppercase",
+    section: "mt-6",
+  },
+} as const;
 
 function Section({
   id,
+  headingClass,
+  sectionClass,
   children,
 }: {
   id: SectionId;
+  headingClass: string;
+  sectionClass: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-4">
-      <h2 className="border-b border-zinc-800 pb-0.5 text-[11px] font-semibold tracking-[0.16em] uppercase">
-        {SECTION_LABELS[id]}
-      </h2>
+    <section className={sectionClass}>
+      <h2 className={headingClass}>{SECTION_LABELS[id]}</h2>
       <div className="mt-2">{children}</div>
     </section>
   );
 }
 
-export function ClassicTemplate({ content }: { content: ResumeContent }) {
+export function ClassicTemplate({
+  content,
+  variant = "classic",
+}: {
+  content: ResumeContent;
+  variant?: TemplateId;
+}) {
+  const theme =
+    classicThemes[variant as keyof typeof classicThemes] ?? classicThemes.classic;
   const sections = getVisibleSections(content);
   const contacts = contactItems(content);
 
   return (
-    <article className="font-serif text-[11.5px] leading-relaxed text-zinc-900">
-      <header className="text-center">
+    <article className={theme.article}>
+      <header className={theme.header}>
         <h1 className="text-[26px] leading-none font-semibold tracking-tight">
           {content.personal.fullName || "Your Name"}
         </h1>
@@ -35,20 +82,20 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
           </p>
         ) : null}
         {contacts.length ? (
-          <p className="mt-2 text-[10.5px] text-zinc-700">
+          <p className={cn("mt-2 text-[10.5px] text-zinc-700")}>
             {contacts.join("  ·  ")}
           </p>
         ) : null}
       </header>
 
       {sections.includes("summary") ? (
-        <Section id="summary">
+        <Section id="summary" headingClass={theme.heading} sectionClass={theme.section}>
           <p>{content.summary}</p>
         </Section>
       ) : null}
 
       {sections.includes("experience") ? (
-        <Section id="experience">
+        <Section id="experience" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-3">
             {content.experience.map((item) => (
               <div key={item.id}>
@@ -73,7 +120,7 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("education") ? (
-        <Section id="education">
+        <Section id="education" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-2">
             {content.education.map((item) => (
               <div key={item.id}>
@@ -94,13 +141,13 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("skills") ? (
-        <Section id="skills">
+        <Section id="skills" headingClass={theme.heading} sectionClass={theme.section}>
           <p>{content.skills.map((skill) => skill.name).filter(Boolean).join(" · ")}</p>
         </Section>
       ) : null}
 
       {sections.includes("projects") ? (
-        <Section id="projects">
+        <Section id="projects" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-2">
             {content.projects.map((item) => (
               <div key={item.id}>
@@ -116,7 +163,7 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("certifications") ? (
-        <Section id="certifications">
+        <Section id="certifications" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-1.5">
             {content.certifications.map((item) => (
               <p key={item.id}>
@@ -130,7 +177,7 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("languages") ? (
-        <Section id="languages">
+        <Section id="languages" headingClass={theme.heading} sectionClass={theme.section}>
           <p>
             {content.languages
               .filter((item) => item.name.trim())
@@ -145,7 +192,7 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("awards") ? (
-        <Section id="awards">
+        <Section id="awards" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-1.5">
             {content.awards.map((item) => (
               <p key={item.id}>
@@ -160,7 +207,7 @@ export function ClassicTemplate({ content }: { content: ResumeContent }) {
       ) : null}
 
       {sections.includes("references") ? (
-        <Section id="references">
+        <Section id="references" headingClass={theme.heading} sectionClass={theme.section}>
           <div className="space-y-1.5">
             {content.references.map((item) => (
               <p key={item.id}>

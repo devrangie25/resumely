@@ -26,7 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { deleteResume, duplicateResume } from "@/lib/resume/actions";
-import { TEMPLATE_LABELS, type TemplateId } from "@/lib/resume/schema";
+import { getTemplateDisplayLabel } from "@/lib/resume/schema";
 
 type ResumeCardProps = {
   id: string;
@@ -45,8 +45,7 @@ export function ResumeCard({
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState<"duplicate" | "delete" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const templateLabel =
-    TEMPLATE_LABELS[templateId as TemplateId] ?? templateId;
+  const templateLabel = getTemplateDisplayLabel(templateId);
 
   async function handleDuplicate() {
     setPending("duplicate");

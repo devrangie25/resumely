@@ -3,8 +3,20 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { PhotoUpload } from "@/components/editor/photo-upload";
+import { TemplateCarousel } from "@/components/editor/template-carousel";
 import { DownloadPdfButton } from "@/components/pdf/download-pdf-button";
 import { ScaledPreview } from "@/components/resume/scaled-preview";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,12 +44,16 @@ import {
 import { updateResume } from "@/lib/resume/actions";
 import { createId, parseResumeContent } from "@/lib/resume/defaults";
 import {
+  FAMILY_LABELS,
   LANGUAGE_LEVELS,
   SECTION_LABELS,
-  TEMPLATE_IDS,
-  TEMPLATE_LABELS,
+  TEMPLATE_FAMILIES,
+  getTemplateFamily,
+  getTemplateVariant,
+  isTemplateId,
   type ResumeContent,
   type SectionId,
+  type TemplateFamily,
   type TemplateId,
 } from "@/lib/resume/schema";
 import type { Json } from "@/lib/supabase/database.types";
@@ -74,13 +90,17 @@ function ItemActions({
   onRemove,
   disableUp,
   disableDown,
+  itemLabel,
 }: {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
   disableUp: boolean;
   disableDown: boolean;
+  itemLabel: string;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="flex flex-wrap gap-2">
       <Button type="button" variant="outline" size="xs" onClick={onMoveUp} disabled={disableUp}>
@@ -89,9 +109,32 @@ function ItemActions({
       <Button type="button" variant="outline" size="xs" onClick={onMoveDown} disabled={disableDown}>
         Down
       </Button>
-      <Button type="button" variant="destructive" size="xs" onClick={onRemove}>
+      <Button type="button" variant="destructive" size="xs" onClick={() => setOpen(true)}>
         Remove
       </Button>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this entry?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove {itemLabel} from your resume. Anything you typed
+              here will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                onRemove();
+                setOpen(false);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -109,9 +152,7 @@ export function ResumeEditor({
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [templateId, setTemplateId] = useState<TemplateId>(
-    TEMPLATE_IDS.includes(initialTemplateId as TemplateId)
-      ? (initialTemplateId as TemplateId)
-      : "classic",
+    isTemplateId(initialTemplateId) ? initialTemplateId : "classic",
   );
   const [content, setContent] = useState<ResumeContent>(() =>
     parseResumeContent(initialContent),
@@ -119,7 +160,12 @@ export function ResumeEditor({
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [browsingFamily, setBrowsingFamily] = useState<TemplateFamily | null>(
+    null,
+  );
   const skipFirstSave = useRef(true);
+  const family = getTemplateFamily(templateId);
+  const variant = getTemplateVariant(templateId);
 
   const snapshot = useMemo(
     () => JSON.stringify({ title, templateId, content }),
@@ -168,10 +214,41 @@ export function ResumeEditor({
     }));
   }
 
-  const preview = (
-    <ScaledPreview content={content} templateId={templateId} scale={0.72} />
+  function selectFamily(nextFamily: TemplateFamily) {
+    setBrowsingFamily(nextFamily);
+  }
+
+  function selectVariant(nextTemplateId: TemplateId) {
+    setTemplateId(nextTemplateId);
+    setBrowsingFamily(null);
+  }
+
+  const preview = browsingFamily ? (
+    <TemplateCarousel
+      family={browsingFamily}
+      content={content}
+      onSelect={selectVariant}
+    />
+  ) : (
+    <div className="grid justify-items-center gap-3">
+      <ScaledPreview content={content} templateId={templateId} scale={0.72} />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => setBrowsingFamily(family)}
+      >
+        Browse {FAMILY_LABELS[family]} designs
+      </Button>
+    </div>
   );
-  const mobilePreview = (
+  const mobilePreview = browsingFamily ? (
+    <TemplateCarousel
+      family={browsingFamily}
+      content={content}
+      onSelect={selectVariant}
+    />
+  ) : (
     <ScaledPreview content={content} templateId={templateId} scale={0.55} />
   );
 
@@ -229,10 +306,13 @@ export function ResumeEditor({
           </Field>
           <Field label="Template">
             <Select
-              value={templateId}
+              value={browsingFamily ?? family}
               onValueChange={(value) => {
-                if (value && TEMPLATE_IDS.includes(value as TemplateId)) {
-                  setTemplateId(value as TemplateId);
+                if (
+                  value &&
+                  TEMPLATE_FAMILIES.includes(value as TemplateFamily)
+                ) {
+                  selectFamily(value as TemplateFamily);
                 }
               }}
             >
@@ -240,13 +320,33 @@ export function ResumeEditor({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TEMPLATE_IDS.map((id) => (
+                {TEMPLATE_FAMILIES.map((id) => (
                   <SelectItem key={id} value={id}>
-                    {TEMPLATE_LABELS[id]}
+                    {FAMILY_LABELS[id]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {!browsingFamily ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Using {variant.label}.
+                </p>
+                <Button
+                  type="button"
+                  variant="link"
+                  size="xs"
+                  className="h-auto px-0"
+                  onClick={() => setBrowsingFamily(family)}
+                >
+                  Browse designs
+                </Button>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Slide through the designs, then choose one to lock it in.
+              </p>
+            )}
           </Field>
         </div>
 
@@ -255,6 +355,13 @@ export function ResumeEditor({
             <AccordionTrigger>Personal information</AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-3 sm:grid-cols-2">
+                {family === "modern" || browsingFamily === "modern" ? (
+                  <PhotoUpload
+                    resumeId={resumeId}
+                    photoUrl={content.personal.photoUrl}
+                    onChange={(url) => updatePersonal("photoUrl", url)}
+                  />
+                ) : null}
                 <Field label="Full name">
                   <Input
                     value={content.personal.fullName}
@@ -469,6 +576,7 @@ export function ResumeEditor({
                       />
                     </Field>
                     <ItemActions
+                      itemLabel="this work experience"
                       disableUp={index === 0}
                       disableDown={index === content.experience.length - 1}
                       onMoveUp={() =>
@@ -641,6 +749,7 @@ export function ResumeEditor({
                       />
                     </Field>
                     <ItemActions
+                      itemLabel="this education entry"
                       disableUp={index === 0}
                       disableDown={index === content.education.length - 1}
                       onMoveUp={() =>
@@ -784,6 +893,7 @@ export function ResumeEditor({
                       </Select>
                     </Field>
                     <ItemActions
+                      itemLabel="this language"
                       disableUp={index === 0}
                       disableDown={index === content.languages.length - 1}
                       onMoveUp={() =>
@@ -874,7 +984,7 @@ export function ResumeEditor({
         </Accordion>
       </div>
 
-      <div className="hidden justify-center overflow-auto rounded-xl bg-zinc-100 p-6 lg:flex">
+      <div className="hidden overflow-auto rounded-xl bg-zinc-100 p-6 lg:block">
         {preview}
       </div>
     </div>
@@ -949,6 +1059,7 @@ function SimpleListSection<
                 </Field>
               ))}
               <ItemActions
+                itemLabel={`this ${SECTION_LABELS[section].toLowerCase()} entry`}
                 disableUp={index === 0}
                 disableDown={index === items.length - 1}
                 onMoveUp={() =>
@@ -1074,6 +1185,7 @@ function ComplexProjects({
                 />
               </Field>
               <ItemActions
+                itemLabel="this project"
                 disableUp={index === 0}
                 disableDown={index === content.projects.length - 1}
                 onMoveUp={() =>

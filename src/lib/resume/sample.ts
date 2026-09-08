@@ -11,6 +11,7 @@ export const sampleResumeContent: ResumeContent = {
     website: "jordanhale.design",
     linkedin: "linkedin.com/in/jordanhale",
     github: "github.com/jordanhale",
+    photoUrl: "",
   },
   summary:
     "Product designer with 8 years of experience turning complex workflows into clear, accessible interfaces. Known for pairing research with systems thinking to ship work that is both beautiful and practical.",
