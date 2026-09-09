@@ -23,6 +23,12 @@ export async function AppHeader({ email }: { email?: string }) {
           Resumely
         </Link>
         <div className="flex items-center gap-3">
+          <Link
+            href="/profile"
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            Profile
+          </Link>
           {showAdmin ? (
             <Link
               href="/admin"

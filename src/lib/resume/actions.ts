@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { trackResumeEvent } from "@/lib/analytics/events";
+import { applyProfileToNewResume } from "@/lib/profile/content";
+import type { ProfileRow } from "@/lib/profile/defaults";
 import { emptyResumeContent, parseResumeContent } from "@/lib/resume/defaults";
 import {
   isTemplateId,
@@ -25,8 +27,22 @@ async function requireUserId() {
   return { supabase, userId: data.claims.sub as string };
 }
 
-export async function createResume() {
+export async function createResume({ useProfile = false } = {}) {
   const { supabase, userId } = await requireUserId();
+
+  let content = emptyResumeContent();
+
+  if (useProfile) {
+    const [{ data: profile }, { data: userData }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", userId).single(),
+      supabase.auth.getUser(),
+    ]);
+
+    content = applyProfileToNewResume(
+      profile as ProfileRow | null,
+      userData.user?.email ?? "",
+    );
+  }
 
   const { data, error } = await supabase
     .from("resumes")
@@ -34,7 +50,7 @@ export async function createResume() {
       user_id: userId,
       title: "Untitled Resume",
       template_id: "classic",
-      content: emptyResumeContent() as unknown as Json,
+      content: content as unknown as Json,
     })
     .select("id")
     .single();

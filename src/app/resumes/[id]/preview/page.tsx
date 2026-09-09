@@ -40,7 +40,7 @@ export default async function PreviewResumePage({
   return (
     <div className="flex min-h-full flex-col bg-zinc-100">
       <AppHeader email={userData.user?.email} />
-      <div className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur-sm">
+      <div className="sticky top-[var(--app-header-height)] z-20 border-b bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
           <div className="min-w-0">
             <p className="truncate text-xs text-muted-foreground sm:text-sm">
