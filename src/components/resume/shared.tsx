@@ -54,11 +54,15 @@ const CONTACT_FIELDS: Array<{
 ];
 
 export function contactEntries(content: ResumeContent): ContactEntry[] {
+  const seen = new Set<string>();
   return CONTACT_FIELDS.flatMap((field) => {
     const value = content.personal[field.key]?.trim();
     if (!value || field.key === "fullName" || field.key === "headline" || field.key === "photoUrl") {
       return [];
     }
+    const normalized = value.toLowerCase();
+    if (seen.has(normalized)) return [];
+    seen.add(normalized);
     return [{ kind: field.kind, value, icon: field.icon }];
   });
 }

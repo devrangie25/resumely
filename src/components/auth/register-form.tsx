@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MailIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -107,7 +108,8 @@ export function RegisterForm() {
         </div>
         {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
         {info ? <p className="text-sm text-muted-foreground">{info}</p> : null}
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? null : <MailIcon />}
           {form.formState.isSubmitting ? "Creating account..." : "Create account"}
         </Button>
       </form>

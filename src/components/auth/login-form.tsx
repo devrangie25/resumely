@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MailIcon, TerminalIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -69,9 +70,11 @@ export function LoginForm() {
         <Button
           type="button"
           variant="secondary"
+          className="w-full"
           onClick={onDevLogin}
           disabled={devPending || form.formState.isSubmitting}
         >
+          {devPending ? null : <TerminalIcon />}
           {devPending ? "Signing in..." : "Continue as Dev"}
         </Button>
       ) : null}
@@ -124,7 +127,8 @@ export function LoginForm() {
           ) : null}
         </div>
         {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? null : <MailIcon />}
           {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
         </Button>
       </form>

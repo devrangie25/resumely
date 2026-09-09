@@ -1,4 +1,10 @@
-import { BulletList, contactItems, dateRange, joinNonEmpty } from "@/components/resume/shared";
+import {
+  BulletList,
+  contactEntries,
+  contactItems,
+  dateRange,
+  joinNonEmpty,
+} from "@/components/resume/shared";
 import {
   SECTION_LABELS,
   type ResumeContent,
@@ -278,8 +284,8 @@ export function ClassicTemplate({
             Contact
           </p>
           <ul className="mt-3 space-y-2">
-            {contacts.map((item) => (
-              <li key={item}>{item}</li>
+            {contactEntries(content).map((item) => (
+              <li key={item.kind}>{item.value}</li>
             ))}
           </ul>
         </aside>
