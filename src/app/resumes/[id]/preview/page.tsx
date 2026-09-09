@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { DownloadPdfButton } from "@/components/pdf/download-pdf-button";
 import { PreviewStage } from "@/components/resume/preview-stage";
+import { SendResumeButton } from "@/components/resume/send-resume-button";
 import { buttonVariants } from "@/components/ui/button";
 import { parseResumeContent } from "@/lib/resume/defaults";
 import { isTemplateId, type TemplateId } from "@/lib/resume/schema";
@@ -59,7 +60,14 @@ export default async function PreviewResumePage({
             >
               Edit
             </Link>
+            <SendResumeButton
+              resumeId={resume.id}
+              content={content}
+              templateId={templateId}
+              title={resume.title}
+            />
             <DownloadPdfButton
+              resumeId={resume.id}
               content={content}
               templateId={templateId}
               title={resume.title}

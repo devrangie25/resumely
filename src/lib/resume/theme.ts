@@ -4,8 +4,32 @@ import {
 } from "@/lib/resume/schema";
 
 export type PhotoShape = "circle" | "rounded" | "square";
-export type ModernLayout = "sidebar" | "banner" | "rail";
-export type SkillStyle = "list" | "pills";
+export type ModernLayout =
+  | "sidebar"
+  | "sidebar-right"
+  | "banner"
+  | "rail"
+  | "light-sidebar"
+  | "infographic"
+  | "header-band";
+export type ClassicLayout =
+  | "centered"
+  | "stripe"
+  | "timeline"
+  | "academic"
+  | "banner"
+  | "gold";
+export type MinimalLayout =
+  | "stack"
+  | "two-column"
+  | "rail"
+  | "editorial"
+  | "centered"
+  | "band"
+  | "split"
+  | "sand";
+export type SkillStyle = "list" | "pills" | "bars";
+export type HeadingStyle = "rule" | "plain" | "bar" | "boxed" | "smallcaps";
 
 export type ResolvedTheme = {
   primary: string;
@@ -15,12 +39,17 @@ export type ResolvedTheme = {
   heading: string;
   company: string;
   rule: string;
+  pageBg: string;
   photo: PhotoShape;
   modernLayout: ModernLayout;
+  classicLayout: ClassicLayout;
+  minimalLayout: MinimalLayout;
   skillStyle: SkillStyle;
+  headingStyle: HeadingStyle;
   splitHeader: boolean;
   classicAlign: "center" | "left";
   font: "sans" | "serif";
+  fullBleed: boolean;
 };
 
 type VariantPreset = Omit<ResolvedTheme, "primary"> & {
@@ -36,12 +65,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#18181b",
     company: "#3f3f46",
     rule: "#18181b",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "rule",
     splitHeader: false,
     classicAlign: "center",
     font: "serif",
+    fullBleed: false,
   },
   "classic-navy": {
     primary: "#1e3a5f",
@@ -51,12 +85,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#1e3a5f",
     company: "#1e3a5f",
     rule: "#1e3a5f",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "stripe",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "bar",
     splitHeader: false,
     classicAlign: "left",
     font: "serif",
+    fullBleed: true,
   },
   "classic-executive": {
     primary: "#111827",
@@ -66,12 +105,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#111827",
     company: "#111827",
     rule: "#111827",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "timeline",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "rule",
     splitHeader: false,
-    classicAlign: "center",
+    classicAlign: "left",
     font: "serif",
+    fullBleed: false,
   },
   "classic-academic": {
     primary: "#57534e",
@@ -81,12 +125,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#44403c",
     company: "#57534e",
     rule: "#a8a29e",
+    pageBg: "#fffdf8",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "academic",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "smallcaps",
     splitHeader: false,
     classicAlign: "left",
     font: "serif",
+    fullBleed: false,
   },
   "classic-burgundy": {
     primary: "#7f1d1d",
@@ -96,12 +145,37 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#7f1d1d",
     company: "#7f1d1d",
     rule: "#7f1d1d",
+    pageBg: "#fffbf7",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "banner",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "rule",
     splitHeader: false,
     classicAlign: "center",
     font: "serif",
+    fullBleed: true,
+  },
+  "classic-gold": {
+    primary: "#b45309",
+    sidebar: "#292524",
+    sidebarText: "#fafaf9",
+    accent: "#d4a017",
+    heading: "#292524",
+    company: "#78716c",
+    rule: "#d4a017",
+    pageBg: "#ffffff",
+    photo: "circle",
+    modernLayout: "sidebar",
+    classicLayout: "gold",
+    minimalLayout: "stack",
+    skillStyle: "list",
+    headingStyle: "rule",
+    splitHeader: false,
+    classicAlign: "center",
+    font: "serif",
+    fullBleed: false,
   },
   modern: {
     primary: "#115e59",
@@ -111,12 +185,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#115e59",
     company: "#115e59",
     rule: "#115e59",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
-    skillStyle: "list",
+    classicLayout: "centered",
+    minimalLayout: "stack",
+    skillStyle: "bars",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-navy": {
     primary: "#1e3a8a",
@@ -126,57 +205,77 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#1e3a8a",
     company: "#1e3a8a",
     rule: "#1e3a8a",
+    pageBg: "#ffffff",
     photo: "circle",
-    modernLayout: "sidebar",
+    modernLayout: "sidebar-right",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-emerald": {
     primary: "#047857",
-    sidebar: "#022c22",
-    sidebarText: "#ecfdf5",
-    accent: "#a7f3d0",
+    sidebar: "#ecfdf5",
+    sidebarText: "#064e3b",
+    accent: "#047857",
     heading: "#047857",
     company: "#047857",
     rule: "#047857",
+    pageBg: "#ffffff",
     photo: "square",
-    modernLayout: "sidebar",
+    modernLayout: "light-sidebar",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "pills",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-sunset": {
     primary: "#c2410c",
-    sidebar: "#431407",
-    sidebarText: "#fff7ed",
-    accent: "#fed7aa",
+    sidebar: "#fff7ed",
+    sidebarText: "#9a3412",
+    accent: "#c2410c",
     heading: "#c2410c",
     company: "#c2410c",
-    rule: "#c2410c",
+    rule: "#fdba74",
+    pageBg: "#fffaf5",
     photo: "rounded",
-    modernLayout: "sidebar",
+    modernLayout: "header-band",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "pills",
+    headingStyle: "bar",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-coral": {
     primary: "#ea580c",
-    sidebar: "#9a3412",
+    sidebar: "#1c1917",
     sidebarText: "#fff7ed",
-    accent: "#ffedd5",
+    accent: "#fdba74",
     heading: "#c2410c",
     company: "#c2410c",
     rule: "#ea580c",
+    pageBg: "#ffffff",
     photo: "circle",
-    modernLayout: "sidebar",
-    skillStyle: "pills",
+    modernLayout: "infographic",
+    classicLayout: "centered",
+    minimalLayout: "stack",
+    skillStyle: "bars",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-indigo": {
     primary: "#4f46e5",
@@ -186,27 +285,57 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#3730a3",
     company: "#3730a3",
     rule: "#4f46e5",
+    pageBg: "#ffffff",
     photo: "circle",
-    modernLayout: "sidebar",
+    modernLayout: "rail",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "pills",
+    headingStyle: "boxed",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "modern-banner": {
-    primary: "#0e7490",
-    sidebar: "#0e7490",
-    sidebarText: "#ecfeff",
-    accent: "#a5f3fc",
-    heading: "#0e7490",
-    company: "#0e7490",
-    rule: "#0e7490",
+    primary: "#0f2744",
+    sidebar: "#0f2744",
+    sidebarText: "#f8fafc",
+    accent: "#eab308",
+    heading: "#0f2744",
+    company: "#0f2744",
+    rule: "#eab308",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "banner",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "pills",
+    headingStyle: "bar",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
+  },
+  "modern-mist": {
+    primary: "#52525b",
+    sidebar: "#f4f4f5",
+    sidebarText: "#18181b",
+    accent: "#3f3f46",
+    heading: "#3f3f46",
+    company: "#52525b",
+    rule: "#d4d4d8",
+    pageBg: "#ffffff",
+    photo: "rounded",
+    modernLayout: "light-sidebar",
+    classicLayout: "centered",
+    minimalLayout: "stack",
+    skillStyle: "list",
+    headingStyle: "plain",
+    splitHeader: false,
+    classicAlign: "left",
+    font: "sans",
+    fullBleed: true,
   },
   minimal: {
     primary: "#71717a",
@@ -216,42 +345,57 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#71717a",
     company: "#52525b",
     rule: "#e4e4e7",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "stack",
     skillStyle: "list",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: false,
   },
   "minimal-serif": {
     primary: "#78716c",
     sidebar: "#44403c",
     sidebarText: "#fafaf9",
-    accent: "#78716c",
-    heading: "#78716c",
-    company: "#57534e",
-    rule: "#d6d3d1",
+    accent: "#a16207",
+    heading: "#6b4f3a",
+    company: "#78716c",
+    rule: "#d6c7b2",
+    pageBg: "#f6f0e6",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "editorial",
     skillStyle: "list",
+    headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",
     font: "serif",
+    fullBleed: false,
   },
   "minimal-split": {
     primary: "#52525b",
     sidebar: "#18181b",
     sidebarText: "#fafafa",
     accent: "#52525b",
-    heading: "#71717a",
+    heading: "#3f3f46",
     company: "#52525b",
     rule: "#e4e4e7",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "two-column",
     skillStyle: "list",
+    headingStyle: "rule",
     splitHeader: true,
     classicAlign: "left",
     font: "sans",
+    fullBleed: false,
   },
   "minimal-accent": {
     primary: "#18181b",
@@ -261,12 +405,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#18181b",
     company: "#3f3f46",
     rule: "#d4d4d8",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "rail",
+    classicLayout: "centered",
+    minimalLayout: "rail",
     skillStyle: "list",
+    headingStyle: "boxed",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "minimal-mint": {
     primary: "#0f766e",
@@ -276,12 +425,17 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#0f766e",
     company: "#0f766e",
     rule: "#99f6e4",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "band",
     skillStyle: "pills",
+    headingStyle: "rule",
     splitHeader: false,
     classicAlign: "left",
     font: "sans",
+    fullBleed: true,
   },
   "minimal-coral": {
     primary: "#c2410c",
@@ -291,27 +445,57 @@ const PRESETS: Record<string, VariantPreset> = {
     heading: "#c2410c",
     company: "#9a3412",
     rule: "#fdba74",
+    pageBg: "#fffaf5",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "centered",
     skillStyle: "pills",
+    headingStyle: "rule",
     splitHeader: false,
-    classicAlign: "left",
+    classicAlign: "center",
     font: "sans",
+    fullBleed: false,
   },
   "minimal-navy": {
     primary: "#1e3a5f",
     sidebar: "#1e3a5f",
     sidebarText: "#f8fafc",
-    accent: "#1e3a5f",
+    accent: "#c9a227",
     heading: "#1e3a5f",
     company: "#1e3a5f",
-    rule: "#93c5fd",
+    rule: "#c9a227",
+    pageBg: "#ffffff",
     photo: "circle",
     modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "split",
     skillStyle: "pills",
+    headingStyle: "bar",
     splitHeader: true,
     classicAlign: "left",
     font: "sans",
+    fullBleed: false,
+  },
+  "minimal-sand": {
+    primary: "#a16207",
+    sidebar: "#f3e8d4",
+    sidebarText: "#44403c",
+    accent: "#a16207",
+    heading: "#78716c",
+    company: "#78716c",
+    rule: "#e7d3b0",
+    pageBg: "#fffdf8",
+    photo: "circle",
+    modernLayout: "sidebar",
+    classicLayout: "centered",
+    minimalLayout: "sand",
+    skillStyle: "list",
+    headingStyle: "plain",
+    splitHeader: false,
+    classicAlign: "left",
+    font: "sans",
+    fullBleed: true,
   },
 };
 
@@ -327,6 +511,8 @@ export const ACCENT_SWATCHES = [
   "#ea580c",
   "#047857",
   "#0f766e",
+  "#b45309",
+  "#c9a227",
   "#18181b",
 ] as const;
 
@@ -404,7 +590,11 @@ export function resolveTheme(
 
   const family = getTemplateFamily(templateId);
   const heading = isLightColor(override) ? darken(override, 0.45) : override;
-  const sidebar = isLightColor(override) ? darken(override, 0.28) : override;
+  const sidebarBase = isLightColor(override) ? darken(override, 0.28) : override;
+  const lightSidebar =
+    preset.modernLayout === "light-sidebar" ||
+    preset.classicLayout === "academic";
+  const sidebar = lightSidebar ? lighten(override, 0.88) : sidebarBase;
   const sidebarText = isLightColor(sidebar) ? "#18181b" : "#fafafa";
   const accent =
     family === "modern"
@@ -435,4 +625,20 @@ export function photoRadiusPx(shape: PhotoShape, size = 80) {
   if (shape === "square") return 6;
   if (shape === "rounded") return 16;
   return size / 2;
+}
+
+export function skillBarWidth(name: string) {
+  let hash = 0;
+  for (const char of name) hash = (hash + char.charCodeAt(0)) % 37;
+  return 58 + hash;
+}
+
+export function languageBarWidth(proficiency: string) {
+  const key = proficiency.trim().toLowerCase();
+  if (key === "native") return 100;
+  if (key === "fluent") return 90;
+  if (key === "professional") return 78;
+  if (key === "intermediate") return 58;
+  if (key === "basic") return 36;
+  return 70;
 }

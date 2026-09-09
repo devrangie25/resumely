@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isSuperAdmin } from "@/lib/admin/auth";
 import type { Database } from "@/lib/supabase/database.types";
 
 function isPublicPath(pathname: string) {
@@ -65,6 +66,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isAuthFormPath(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
+  if (user && pathname.startsWith("/admin") && !isSuperAdmin(user)) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";

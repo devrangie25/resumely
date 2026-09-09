@@ -3,15 +3,15 @@ import { emptyVisibility } from "@/lib/resume/defaults";
 
 export const sampleResumeContent: ResumeContent = {
   personal: {
-    fullName: "Jordan Hale",
+    fullName: "John Doe",
     headline: "Product Designer",
-    email: "jordan.hale@email.com",
+    email: "john.doe@email.com",
     phone: "+1 (415) 555-0148",
     location: "San Francisco, CA",
-    website: "jordanhale.design",
-    linkedin: "linkedin.com/in/jordanhale",
-    github: "github.com/jordanhale",
-    photoUrl: "",
+    website: "johndoe.design",
+    linkedin: "linkedin.com/in/johndoe",
+    github: "github.com/johndoe",
+    photoUrl: "/sample-resume-avatar.svg",
   },
   summary:
     "Product designer with 8 years of experience turning complex workflows into clear, accessible interfaces. Known for pairing research with systems thinking to ship work that is both beautiful and practical.",
@@ -69,7 +69,7 @@ export const sampleResumeContent: ResumeContent = {
       id: "pr-1",
       name: "Harbor UI",
       description: "Open-source component library for financial products.",
-      url: "github.com/jordanhale/harbor-ui",
+      url: "github.com/johndoe/harbor-ui",
       bullets: [
         "Documented 40+ components with usage guidelines and accessibility notes.",
       ],

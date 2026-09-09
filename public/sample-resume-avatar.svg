@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Sample profile photo">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dbeafe" />
+      <stop offset="100%" stop-color="#bfdbfe" />
+    </linearGradient>
+    <linearGradient id="shirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)" />
+  <ellipse cx="200" cy="330" rx="150" ry="95" fill="url(#shirt)" />
+  <path
+    d="M95 360c28-58 78-88 105-88s77 30 105 88H95z"
+    fill="#475569"
+  />
+  <circle cx="200" cy="168" r="78" fill="#f5d0b5" />
+  <path
+    d="M122 150c8-42 38-72 78-72s70 30 78 72c-18 10-42 16-78 16s-60-6-78-16z"
+    fill="#574038"
+  />
+  <path
+    d="M122 150c12 18 34 28 78 28s66-10 78-28c-6 34-34 58-78 58s-72-24-78-58z"
+    fill="#6b4f3f"
+  />
+  <ellipse cx="168" cy="176" rx="8" ry="10" fill="#3f2d25" />
+  <ellipse cx="232" cy="176" rx="8" ry="10" fill="#3f2d25" />
+  <path
+    d="M186 206c6 8 22 8 28 0"
+    fill="none"
+    stroke="#c4846c"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+  <path
+    d="M150 188c10-8 24-12 50-12s40 4 50 12"
+    fill="none"
+    stroke="#574038"
+    stroke-width="10"
+    stroke-linecap="round"
+    opacity="0.35"
+  />
+</svg>

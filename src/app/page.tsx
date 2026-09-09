@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+import { PlatformStats } from "@/components/landing/platform-stats";
+import { SampleResumeCarousel } from "@/components/landing/sample-resume-carousel";
 import { SiteHeader } from "@/components/site-header";
-import { ScaledPreview } from "@/components/resume/scaled-preview";
 import { buttonVariants } from "@/components/ui/button";
 import { sampleResumeContent } from "@/lib/resume/sample";
 
@@ -41,13 +42,11 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex justify-center overflow-hidden rounded-2xl bg-zinc-100 p-4 shadow-inner">
-            <ScaledPreview
-              content={sampleResumeContent}
-              templateId="classic"
-              scale={0.48}
-            />
+            <SampleResumeCarousel content={sampleResumeContent} />
           </div>
         </section>
+
+        <PlatformStats />
 
         <section className="border-t bg-zinc-50">
           <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-16 md:grid-cols-3">

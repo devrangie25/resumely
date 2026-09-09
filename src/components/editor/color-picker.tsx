@@ -17,7 +17,7 @@ export function ColorPicker({
   const active = value.trim() && isValidHex(value) ? value : preset.primary;
 
   return (
-    <div className="grid gap-2 sm:col-span-2">
+    <div className="grid gap-2">
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor="resume-accent">Accent color</Label>
         {value.trim() ? (

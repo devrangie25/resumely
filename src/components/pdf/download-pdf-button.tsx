@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 
+import {
+  generateResumePdfBlob,
+  safeResumeFilename,
+} from "@/components/pdf/generate-resume-pdf";
 import { Button } from "@/components/ui/button";
+import { trackResumeDownload } from "@/lib/resume/actions";
 import type { ResumeContent, TemplateId } from "@/lib/resume/schema";
 
 export function DownloadPdfButton({
+  resumeId,
   content,
   templateId,
   title,
 }: {
+  resumeId?: string;
   content: ResumeContent;
   templateId: TemplateId;
   title: string;
@@ -19,39 +26,16 @@ export function DownloadPdfButton({
   async function handleDownload() {
     setPending(true);
     try {
-      const [{ pdf }, { ResumePdf }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("@/components/pdf/resume-pdf"),
-      ]);
-      let photoSrc = content.personal.photoUrl;
-      if (photoSrc) {
-        try {
-          const response = await fetch(photoSrc);
-          const imageBlob = await response.blob();
-          photoSrc = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result));
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(imageBlob);
-          });
-        } catch {
-          photoSrc = content.personal.photoUrl;
-        }
-      }
-      const blob = await pdf(
-        <ResumePdf
-          content={content}
-          templateId={templateId}
-          photoSrc={photoSrc || undefined}
-        />,
-      ).toBlob();
+      const blob = await generateResumePdfBlob({ content, templateId });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      const safeTitle = title.trim().replace(/[^\w\- ]+/g, "") || "resume";
       link.href = url;
-      link.download = `${safeTitle}.pdf`;
+      link.download = `${safeResumeFilename(title)}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
+      if (resumeId) {
+        await trackResumeDownload(resumeId);
+      }
     } finally {
       setPending(false);
     }

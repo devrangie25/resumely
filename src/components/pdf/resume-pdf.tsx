@@ -11,6 +11,13 @@ import {
 
 import { dateRange, joinNonEmpty } from "@/components/resume/shared";
 import {
+  PDF_SANS,
+  PDF_SANS_BOLD,
+  PDF_SERIF,
+  PDF_SERIF_BOLD,
+  PDF_SERIF_ITALIC,
+} from "@/lib/pdf/fonts";
+import {
   SECTION_LABELS,
   getTemplateFamily,
   type ResumeContent,
@@ -18,8 +25,10 @@ import {
   type TemplateId,
 } from "@/lib/resume/schema";
 import {
+  languageBarWidth,
   photoRadiusPx,
   resolveTheme,
+  skillBarWidth,
   type ResolvedTheme,
 } from "@/lib/resume/theme";
 import { getVisibleSections } from "@/lib/resume/visibility";
@@ -112,7 +121,7 @@ function PdfSectionBody({
           {content.experience.map((item) => (
             <View key={item.id} style={{ marginBottom: 8 }} wrap={false}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-                <Text style={{ fontFamily: "Helvetica-Bold", color: boldColor }}>
+                <Text style={{ fontFamily: PDF_SANS_BOLD, color: boldColor }}>
                   {item.title || joinNonEmpty([item.title, item.company], ", ")}
                 </Text>
                 <Text style={{ fontSize: 9, color: mutedColor }}>
@@ -133,7 +142,7 @@ function PdfSectionBody({
           {content.education.map((item) => (
             <View key={item.id} style={{ marginBottom: 8 }} wrap={false}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-                <Text style={{ fontFamily: "Helvetica-Bold", color: boldColor }}>
+                <Text style={{ fontFamily: PDF_SANS_BOLD, color: boldColor }}>
                   {item.school}
                 </Text>
                 <Text style={{ fontSize: 9, color: mutedColor }}>
@@ -157,7 +166,7 @@ function PdfSectionBody({
         <View>
           {content.projects.map((item) => (
             <View key={item.id} style={{ marginBottom: 8 }} wrap={false}>
-              <Text style={{ fontFamily: "Helvetica-Bold", color: boldColor }}>
+              <Text style={{ fontFamily: PDF_SANS_BOLD, color: boldColor }}>
                 {joinNonEmpty([item.name, item.url], " — ")}
               </Text>
               {item.description ? <Text>{item.description}</Text> : null}
@@ -230,11 +239,81 @@ function PdfHeading({
         letterSpacing: 1.1,
         textTransform: "uppercase",
         color,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: PDF_SANS_BOLD,
       }}
     >
       {SECTION_LABELS[section]}
     </Text>
+  );
+}
+
+function ClassicHeading({
+  section,
+  theme,
+}: {
+  section: SectionId;
+  theme: ResolvedTheme;
+}) {
+  const small = theme.headingStyle === "smallcaps";
+  return (
+    <View
+      style={{
+        marginTop: 14,
+        marginBottom: 6,
+        flexDirection: "row",
+        alignItems: "center",
+        borderBottomWidth: small ? 0 : theme.headingStyle === "bar" ? 0 : 1,
+        borderBottomColor: theme.rule,
+        paddingBottom: 2,
+      }}
+    >
+      {theme.headingStyle === "bar" ? (
+        <View
+          style={{
+            width: 6,
+            height: 10,
+            marginRight: 6,
+            backgroundColor: theme.heading,
+          }}
+        />
+      ) : null}
+      <Text
+        minPresenceAhead={28}
+        style={{
+          fontSize: 10,
+          fontFamily: PDF_SERIF_BOLD,
+          textTransform: "uppercase",
+          letterSpacing: small ? 2 : 1.4,
+          color: theme.heading,
+        }}
+      >
+        {SECTION_LABELS[section]}
+      </Text>
+    </View>
+  );
+}
+
+function ClassicSections({
+  content,
+  theme,
+}: {
+  content: ResumeContent;
+  theme: ResolvedTheme;
+}) {
+  const sections = getVisibleSections(content);
+  return (
+    <>
+      {sections.map((section) => (
+        <View key={section}>
+          <ClassicHeading section={section} theme={theme} />
+          <PdfSectionBody
+            content={content}
+            section={section}
+            companyColor={theme.company}
+          />
+        </View>
+      ))}
+    </>
   );
 }
 
@@ -245,9 +324,123 @@ function ClassicPdf({
   content: ResumeContent;
   theme: ResolvedTheme;
 }) {
-  const sections = getVisibleSections(content);
   const contacts = pdfContacts(content);
   const align = theme.classicAlign;
+  const name = content.personal.fullName || "Your Name";
+
+  if (theme.classicLayout === "stripe") {
+    return (
+      <Document>
+        <Page
+          size="A4"
+          wrap
+          style={{
+            fontFamily: PDF_SERIF,
+            fontSize: 10,
+            color: "#18181b",
+            lineHeight: 1.4,
+            paddingLeft: 132,
+            paddingRight: 36,
+            paddingTop: 40,
+            paddingBottom: 40,
+          }}
+        >
+          <View
+            fixed
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 108,
+              backgroundColor: theme.sidebar,
+              padding: 16,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 8,
+                letterSpacing: 1.4,
+                textTransform: "uppercase",
+                color: theme.sidebarText,
+                fontFamily: PDF_SERIF_BOLD,
+                marginBottom: 8,
+              }}
+            >
+              Contact
+            </Text>
+            {contacts.map((item) => (
+              <Text
+                key={item.kind}
+                style={{ fontSize: 8, color: theme.sidebarText, marginBottom: 6 }}
+              >
+                {item.value}
+              </Text>
+            ))}
+          </View>
+          <Text style={{ fontSize: 22, fontFamily: PDF_SERIF_BOLD, color: theme.heading }}>
+            {name}
+          </Text>
+          {content.personal.headline ? (
+            <Text style={{ marginTop: 6, fontSize: 11, fontFamily: PDF_SERIF_ITALIC }}>
+              {content.personal.headline}
+            </Text>
+          ) : null}
+          <ClassicSections content={content} theme={theme} />
+        </Page>
+      </Document>
+    );
+  }
+
+  if (theme.classicLayout === "banner") {
+    return (
+      <Document>
+        <Page
+          size="A4"
+          wrap
+          style={{
+            fontFamily: PDF_SERIF,
+            fontSize: 10,
+            color: "#18181b",
+            lineHeight: 1.4,
+            backgroundColor: theme.pageBg,
+            paddingTop: 120,
+            paddingBottom: 40,
+            paddingHorizontal: 42,
+          }}
+        >
+          <View
+            wrap={false}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              backgroundColor: theme.sidebar,
+              paddingVertical: 22,
+              paddingHorizontal: 42,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 22, fontFamily: PDF_SERIF_BOLD, color: "#ffffff" }}>
+              {name}
+            </Text>
+            {content.personal.headline ? (
+              <Text style={{ marginTop: 6, fontSize: 11, color: theme.sidebarText }}>
+                {content.personal.headline}
+              </Text>
+            ) : null}
+            {contacts.length ? (
+              <Text style={{ marginTop: 8, fontSize: 9, color: theme.sidebarText }}>
+                {contacts.map((item) => item.value).join("  ·  ")}
+              </Text>
+            ) : null}
+          </View>
+          <ClassicSections content={content} theme={theme} />
+        </Page>
+      </Document>
+    );
+  }
 
   return (
     <Document>
@@ -258,30 +451,45 @@ function ClassicPdf({
           paddingTop: 36,
           paddingBottom: 40,
           paddingHorizontal: 42,
-          fontFamily: "Times-Roman",
+          fontFamily: PDF_SERIF,
           fontSize: 10,
           color: "#18181b",
           lineHeight: 1.4,
+          backgroundColor: theme.pageBg,
         }}
       >
-        <View wrap={false}>
+        <View wrap={false} style={{ alignItems: align === "center" ? "center" : "flex-start" }}>
+          {theme.classicLayout === "centered" ? (
+            <View style={{ width: "100%", borderTopWidth: 2, borderTopColor: theme.rule, paddingTop: 8 }} />
+          ) : null}
+          {theme.classicLayout === "gold" ? (
+            <View style={{ width: 80, height: 1, backgroundColor: theme.rule, marginBottom: 8 }} />
+          ) : null}
           <Text
             style={{
               fontSize: 22,
               textAlign: align,
-              fontFamily: "Times-Bold",
+              fontFamily: PDF_SERIF_BOLD,
               color: theme.heading,
+              letterSpacing: theme.classicLayout === "gold" ? 1.6 : 0,
+              textTransform: theme.classicLayout === "gold" ? "uppercase" : "none",
             }}
           >
-            {content.personal.fullName || "Your Name"}
+            {name}
           </Text>
+          {theme.classicLayout === "centered" ? (
+            <View style={{ width: "100%", borderBottomWidth: 2, borderBottomColor: theme.rule, marginTop: 8 }} />
+          ) : null}
+          {theme.classicLayout === "gold" ? (
+            <View style={{ width: 80, height: 1, backgroundColor: theme.rule, marginTop: 8 }} />
+          ) : null}
           {content.personal.headline ? (
             <Text
               style={{
-                marginTop: 4,
+                marginTop: 6,
                 fontSize: 11,
                 textAlign: align,
-                fontFamily: "Times-Italic",
+                fontFamily: PDF_SERIF_ITALIC,
               }}
             >
               {content.personal.headline}
@@ -300,33 +508,7 @@ function ClassicPdf({
             </Text>
           ) : null}
         </View>
-
-        {sections.map((section) => (
-          <View key={section}>
-            <Text
-              minPresenceAhead={28}
-              style={{
-                marginTop: 14,
-                marginBottom: 6,
-                fontSize: 10,
-                fontFamily: "Times-Bold",
-                textTransform: "uppercase",
-                letterSpacing: 1.4,
-                color: theme.heading,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.rule,
-                paddingBottom: 2,
-              }}
-            >
-              {SECTION_LABELS[section]}
-            </Text>
-            <PdfSectionBody
-              content={content}
-              section={section}
-              companyColor={theme.company}
-            />
-          </View>
-        ))}
+        <ClassicSections content={content} theme={theme} />
       </Page>
     </Document>
   );
@@ -383,6 +565,78 @@ function SkillPillsPdf({ names, color }: { names: string[]; color: string }) {
   );
 }
 
+function MeterBarsPdf({
+  items,
+  color,
+}: {
+  items: Array<{ id: string; label: string; width: number }>;
+  color: string;
+}) {
+  return (
+    <View>
+      {items.map((item) => (
+        <View key={item.id} style={{ marginBottom: 6 }}>
+          <Text style={{ fontSize: 8, marginBottom: 2 }}>{item.label}</Text>
+          <View
+            style={{
+              height: 5,
+              backgroundColor: "#e4e4e7",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
+            <View
+              style={{
+                width: `${item.width}%`,
+                height: 5,
+                backgroundColor: color,
+              }}
+            />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function SkillBlockPdf({
+  content,
+  theme,
+  color,
+}: {
+  content: ResumeContent;
+  theme: ResolvedTheme;
+  color: string;
+}) {
+  const skills = content.skills.map((skill) => skill.name);
+  if (theme.skillStyle === "bars") {
+    return (
+      <MeterBarsPdf
+        items={content.skills
+          .filter((skill) => skill.name.trim())
+          .map((skill) => ({
+            id: skill.id,
+            label: skill.name,
+            width: skillBarWidth(skill.name),
+          }))}
+        color={color}
+      />
+    );
+  }
+  if (theme.skillStyle === "pills") {
+    return <SkillPillsPdf names={skills} color={color} />;
+  }
+  return (
+    <View>
+      {skills.filter(Boolean).map((name) => (
+        <Text key={name} style={{ fontSize: 9, marginBottom: 3 }}>
+          {name}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
 function ModernPdf({
   content,
   photoSrc,
@@ -397,7 +651,6 @@ function ModernPdf({
     ["skills", "languages", "certifications"].includes(section),
   );
   const main = sections.filter((section) => !sidebar.includes(section));
-  const skills = content.skills.map((skill) => skill.name);
 
   if (theme.modernLayout === "banner") {
     return (
@@ -405,7 +658,7 @@ function ModernPdf({
         <Page
           size="A4"
           wrap
-          style={{ fontFamily: "Helvetica", fontSize: 10, color: "#27272a" }}
+          style={{ fontFamily: PDF_SANS, fontSize: 10, color: "#27272a" }}
         >
           <View
             wrap={false}
@@ -430,7 +683,7 @@ function ModernPdf({
               />
             ) : null}
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 20, fontFamily: "Helvetica-Bold", color: "#ffffff" }}>
+              <Text style={{ fontSize: 20, fontFamily: PDF_SANS_BOLD, color: "#ffffff" }}>
                 {content.personal.fullName || "Your Name"}
               </Text>
               {content.personal.headline ? (
@@ -447,31 +700,43 @@ function ModernPdf({
               </View>
             </View>
           </View>
-          <View style={{ paddingHorizontal: 32, paddingVertical: 24, paddingBottom: 36 }}>
-            {main.map((section) => (
-              <View key={section}>
-                <PdfHeading section={section} color={theme.heading} />
-                <PdfSectionBody
-                  content={content}
-                  section={section}
-                  companyColor={theme.company}
-                />
-              </View>
-            ))}
-            {sidebar.includes("skills") ? (
-              <View>
-                <PdfHeading section="skills" color={theme.heading} />
-                <SkillPillsPdf names={skills} color={theme.heading} />
-              </View>
-            ) : null}
-            {sidebar
-              .filter((section) => section !== "skills")
-              .map((section) => (
+          <View
+            style={{
+              paddingHorizontal: 32,
+              paddingVertical: 24,
+              paddingBottom: 36,
+              flexDirection: "row",
+              gap: 20,
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              {main.map((section) => (
                 <View key={section}>
                   <PdfHeading section={section} color={theme.heading} />
-                  <PdfSectionBody content={content} section={section} />
+                  <PdfSectionBody
+                    content={content}
+                    section={section}
+                    companyColor={theme.company}
+                  />
                 </View>
               ))}
+            </View>
+            <View style={{ width: 150 }}>
+              {sidebar.includes("skills") ? (
+                <View>
+                  <PdfHeading section="skills" color={theme.heading} />
+                  <SkillBlockPdf content={content} theme={theme} color={theme.heading} />
+                </View>
+              ) : null}
+              {sidebar
+                .filter((section) => section !== "skills")
+                .map((section) => (
+                  <View key={section}>
+                    <PdfHeading section={section} color={theme.heading} />
+                    <PdfSectionBody content={content} section={section} />
+                  </View>
+                ))}
+            </View>
           </View>
         </Page>
       </Document>
@@ -485,7 +750,7 @@ function ModernPdf({
           size="A4"
           wrap
           style={{
-            fontFamily: "Helvetica",
+            fontFamily: PDF_SANS,
             fontSize: 10,
             color: "#27272a",
             paddingLeft: 32,
@@ -518,7 +783,7 @@ function ModernPdf({
               />
             ) : null}
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 20, fontFamily: "Helvetica-Bold", color: "#09090b" }}>
+              <Text style={{ fontSize: 20, fontFamily: PDF_SANS_BOLD, color: "#09090b" }}>
                 {content.personal.fullName || "Your Name"}
               </Text>
               {content.personal.headline ? (
@@ -538,8 +803,8 @@ function ModernPdf({
           {[...main, ...sidebar].map((section) => (
             <View key={section}>
               <PdfHeading section={section} color={theme.heading} />
-              {section === "skills" && theme.skillStyle === "pills" ? (
-                <SkillPillsPdf names={skills} color={theme.heading} />
+              {section === "skills" ? (
+                <SkillBlockPdf content={content} theme={theme} color={theme.heading} />
               ) : (
                 <PdfSectionBody
                   content={content}
@@ -554,17 +819,204 @@ function ModernPdf({
     );
   }
 
+  if (theme.modernLayout === "infographic") {
+    return (
+      <Document>
+        <Page
+          size="A4"
+          wrap
+          style={{ fontFamily: PDF_SANS, fontSize: 10, color: "#27272a" }}
+        >
+          <View
+            wrap={false}
+            style={{
+              backgroundColor: theme.sidebar,
+              paddingVertical: 22,
+              paddingHorizontal: 28,
+              alignItems: "center",
+            }}
+          >
+            {photoSrc ? (
+              <Image
+                src={photoSrc}
+                style={{
+                  width: 76,
+                  height: 76,
+                  borderRadius: photoRadiusPx(theme.photo, 76),
+                  objectFit: "cover",
+                  marginBottom: 10,
+                }}
+              />
+            ) : null}
+            <Text style={{ fontSize: 20, fontFamily: PDF_SANS_BOLD, color: "#ffffff" }}>
+              {content.personal.fullName || "Your Name"}
+            </Text>
+            {content.personal.headline ? (
+              <Text style={{ marginTop: 4, fontSize: 11, color: theme.accent }}>
+                {content.personal.headline}
+              </Text>
+            ) : null}
+            <View style={{ marginTop: 10, width: "100%" }}>
+              <ContactRows
+                content={content}
+                color={theme.accent}
+                itemColor={theme.sidebarText}
+              />
+            </View>
+          </View>
+          <View style={{ paddingHorizontal: 32, paddingVertical: 24, flexDirection: "row", gap: 18 }}>
+            <View style={{ flex: 1 }}>
+              {main.map((section) => (
+                <View key={section}>
+                  <PdfHeading section={section} color={theme.heading} />
+                  <PdfSectionBody
+                    content={content}
+                    section={section}
+                    companyColor={theme.company}
+                  />
+                </View>
+              ))}
+            </View>
+            <View style={{ width: 156 }}>
+              {sidebar.includes("skills") ? (
+                <View>
+                  <PdfHeading section="skills" color={theme.heading} />
+                  <SkillBlockPdf content={content} theme={theme} color={theme.heading} />
+                </View>
+              ) : null}
+              {sidebar.includes("languages") ? (
+                <View>
+                  <PdfHeading section="languages" color={theme.heading} />
+                  <MeterBarsPdf
+                    items={content.languages
+                      .filter((item) => item.name.trim())
+                      .map((item) => ({
+                        id: item.id,
+                        label: item.proficiency
+                          ? `${item.name} · ${item.proficiency}`
+                          : item.name,
+                        width: languageBarWidth(item.proficiency),
+                      }))}
+                    color={theme.heading}
+                  />
+                </View>
+              ) : null}
+              {sidebar.includes("certifications") ? (
+                <View>
+                  <PdfHeading section="certifications" color={theme.heading} />
+                  <PdfSectionBody content={content} section="certifications" />
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  if (theme.modernLayout === "header-band") {
+    return (
+      <Document>
+        <Page
+          size="A4"
+          wrap
+          style={{
+            fontFamily: PDF_SANS,
+            fontSize: 10,
+            color: "#27272a",
+            backgroundColor: theme.pageBg,
+            paddingTop: 28,
+            paddingBottom: 36,
+            paddingHorizontal: 32,
+          }}
+        >
+          <View
+            fixed
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              height: 10,
+              backgroundColor: theme.heading,
+            }}
+          />
+          <View wrap={false} style={{ flexDirection: "row", gap: 16, marginBottom: 14, marginTop: 8 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 22, fontFamily: PDF_SANS_BOLD, color: "#09090b" }}>
+                {content.personal.fullName || "Your Name"}
+              </Text>
+              {content.personal.headline ? (
+                <Text style={{ marginTop: 4, color: theme.heading }}>
+                  {content.personal.headline}
+                </Text>
+              ) : null}
+              <View style={{ marginTop: 8 }}>
+                <ContactRows content={content} color={theme.heading} itemColor="#52525b" />
+              </View>
+            </View>
+            {photoSrc ? (
+              <Image
+                src={photoSrc}
+                style={{
+                  width: 76,
+                  height: 76,
+                  borderRadius: photoRadiusPx(theme.photo, 76),
+                  objectFit: "cover",
+                }}
+              />
+            ) : null}
+          </View>
+          <View style={{ flexDirection: "row", gap: 18 }}>
+            <View style={{ flex: 1 }}>
+              {main.map((section) => (
+                <View key={section}>
+                  <PdfHeading section={section} color={theme.heading} />
+                  <PdfSectionBody
+                    content={content}
+                    section={section}
+                    companyColor={theme.company}
+                  />
+                </View>
+              ))}
+            </View>
+            <View style={{ width: 150, backgroundColor: theme.sidebar, padding: 10 }}>
+              {sidebar.includes("skills") ? (
+                <View>
+                  <PdfHeading section="skills" color={theme.heading} />
+                  <SkillBlockPdf content={content} theme={theme} color={theme.heading} />
+                </View>
+              ) : null}
+              {sidebar
+                .filter((section) => section !== "skills")
+                .map((section) => (
+                  <View key={section}>
+                    <PdfHeading section={section} color={theme.heading} />
+                    <PdfSectionBody content={content} section={section} />
+                  </View>
+                ))}
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  const right = theme.modernLayout === "sidebar-right";
+  const light = theme.modernLayout === "light-sidebar";
+  const nameColor = light ? "#18181b" : "#ffffff";
+
   return (
     <Document>
       <Page
         size="A4"
         wrap
         style={{
-          fontFamily: "Helvetica",
+          fontFamily: PDF_SANS,
           fontSize: 10,
           color: "#27272a",
-          paddingLeft: 206,
-          paddingRight: 28,
+          paddingLeft: right ? 28 : 206,
+          paddingRight: right ? 206 : 28,
           paddingTop: 28,
           paddingBottom: 36,
         }}
@@ -573,7 +1025,8 @@ function ModernPdf({
           fixed
           style={{
             position: "absolute",
-            left: 0,
+            left: right ? undefined : 0,
+            right: right ? 0 : undefined,
             top: 0,
             bottom: 0,
             width: 190,
@@ -594,14 +1047,18 @@ function ModernPdf({
               }}
             />
           ) : null}
-          <Text style={{ fontSize: 18, fontFamily: "Helvetica-Bold", color: "#ffffff" }}>
-            {content.personal.fullName || "Your Name"}
-          </Text>
-          {content.personal.headline ? (
-            <Text style={{ marginTop: 8, fontSize: 10, color: theme.accent }}>
-              {content.personal.headline}
-            </Text>
-          ) : null}
+          {right ? null : (
+            <>
+              <Text style={{ fontSize: 18, fontFamily: PDF_SANS_BOLD, color: nameColor }}>
+                {content.personal.fullName || "Your Name"}
+              </Text>
+              {content.personal.headline ? (
+                <Text style={{ marginTop: 8, fontSize: 10, color: theme.accent }}>
+                  {content.personal.headline}
+                </Text>
+              ) : null}
+            </>
+          )}
           <Text
             style={{
               marginTop: 18,
@@ -610,7 +1067,7 @@ function ModernPdf({
               letterSpacing: 1.2,
               textTransform: "uppercase",
               color: theme.accent,
-              fontFamily: "Helvetica-Bold",
+              fontFamily: PDF_SANS_BOLD,
             }}
           >
             Contact
@@ -630,25 +1087,12 @@ function ModernPdf({
                   letterSpacing: 1.2,
                   textTransform: "uppercase",
                   color: theme.accent,
-                  fontFamily: "Helvetica-Bold",
+                  fontFamily: PDF_SANS_BOLD,
                 }}
               >
                 Skills
               </Text>
-              {theme.skillStyle === "pills" ? (
-                <SkillPillsPdf names={skills} color={theme.accent} />
-              ) : (
-                content.skills
-                  .filter((skill) => skill.name.trim())
-                  .map((skill) => (
-                    <Text
-                      key={skill.id}
-                      style={{ fontSize: 9, color: theme.sidebarText, marginBottom: 4 }}
-                    >
-                      {skill.name}
-                    </Text>
-                  ))
-              )}
+              <SkillBlockPdf content={content} theme={theme} color={theme.accent} />
             </View>
           ) : null}
           {sidebar.includes("languages") ? (
@@ -661,7 +1105,7 @@ function ModernPdf({
                   letterSpacing: 1.2,
                   textTransform: "uppercase",
                   color: theme.accent,
-                  fontFamily: "Helvetica-Bold",
+                  fontFamily: PDF_SANS_BOLD,
                 }}
               >
                 Languages
@@ -689,7 +1133,7 @@ function ModernPdf({
                   letterSpacing: 1.2,
                   textTransform: "uppercase",
                   color: theme.accent,
-                  fontFamily: "Helvetica-Bold",
+                  fontFamily: PDF_SANS_BOLD,
                 }}
               >
                 Certifications
@@ -706,6 +1150,18 @@ function ModernPdf({
           ) : null}
         </View>
 
+        {right ? (
+          <View wrap={false} style={{ marginBottom: 10 }}>
+            <Text style={{ fontSize: 22, fontFamily: PDF_SANS_BOLD, color: "#09090b" }}>
+              {content.personal.fullName || "Your Name"}
+            </Text>
+            {content.personal.headline ? (
+              <Text style={{ marginTop: 4, color: theme.heading }}>
+                {content.personal.headline}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
         {main.map((section, index) => (
           <View key={section}>
             <Text
@@ -717,7 +1173,7 @@ function ModernPdf({
                 letterSpacing: 1.1,
                 textTransform: "uppercase",
                 color: theme.heading,
-                fontFamily: "Helvetica-Bold",
+                fontFamily: PDF_SANS_BOLD,
               }}
             >
               {SECTION_LABELS[section]}
@@ -734,6 +1190,59 @@ function ModernPdf({
   );
 }
 
+function MinimalHeading({
+  section,
+  theme,
+}: {
+  section: SectionId;
+  theme: ResolvedTheme;
+}) {
+  return (
+    <Text
+      minPresenceAhead={28}
+      style={{
+        marginTop: 16,
+        marginBottom: 8,
+        fontSize: 9,
+        letterSpacing: 1.8,
+        textTransform: "uppercase",
+        color: theme.heading,
+        borderBottomWidth: theme.headingStyle === "rule" ? 1 : 0,
+        borderBottomColor: theme.rule,
+        paddingBottom: 3,
+        fontFamily: PDF_SANS_BOLD,
+      }}
+    >
+      {SECTION_LABELS[section]}
+    </Text>
+  );
+}
+
+function MinimalSection({
+  content,
+  section,
+  theme,
+}: {
+  content: ResumeContent;
+  section: SectionId;
+  theme: ResolvedTheme;
+}) {
+  return (
+    <View>
+      <MinimalHeading section={section} theme={theme} />
+      {section === "skills" ? (
+        <SkillBlockPdf content={content} theme={theme} color={theme.heading} />
+      ) : (
+        <PdfSectionBody
+          content={content}
+          section={section}
+          companyColor={theme.company}
+        />
+      )}
+    </View>
+  );
+}
+
 function MinimalPdf({
   content,
   theme,
@@ -743,7 +1252,92 @@ function MinimalPdf({
 }) {
   const sections = getVisibleSections(content);
   const contacts = pdfContacts(content);
-  const skills = content.skills.map((skill) => skill.name);
+  const name = content.personal.fullName || "Your Name";
+  const side = sections.filter((section) =>
+    ["skills", "languages", "certifications"].includes(section),
+  );
+  const main = sections.filter((section) => !side.includes(section));
+  const layout = theme.minimalLayout;
+
+  if (layout === "band" || layout === "sand") {
+    const headerBg = layout === "sand" ? theme.sidebar : theme.sidebar;
+    const headerColor = layout === "sand" ? "#18181b" : "#ffffff";
+    return (
+      <Document>
+        <Page
+          size="A4"
+          wrap
+          style={{
+            fontFamily: PDF_SANS,
+            fontSize: 10,
+            color: "#27272a",
+            backgroundColor: theme.pageBg,
+            paddingTop: 118,
+            paddingBottom: 40,
+            paddingHorizontal: 40,
+          }}
+        >
+          <View
+            wrap={false}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              backgroundColor: headerBg,
+              paddingHorizontal: 40,
+              paddingVertical: 22,
+            }}
+          >
+            {layout === "sand" ? (
+              <Text
+                style={{
+                  fontSize: 8,
+                  letterSpacing: 2.4,
+                  textTransform: "uppercase",
+                  color: theme.accent,
+                  marginBottom: 6,
+                }}
+              >
+                Curriculum Vitae
+              </Text>
+            ) : null}
+            <Text
+              style={{
+                fontSize: 22,
+                fontFamily: layout === "sand" ? PDF_SANS : PDF_SANS_BOLD,
+                color: headerColor,
+              }}
+            >
+              {name}
+            </Text>
+            {content.personal.headline ? (
+              <Text style={{ marginTop: 6, fontSize: 11, color: headerColor }}>
+                {content.personal.headline}
+              </Text>
+            ) : null}
+            <View style={{ marginTop: 10 }}>
+              <ContactRows
+                content={content}
+                color={layout === "sand" ? theme.accent : "#ffffff"}
+                itemColor={layout === "sand" ? "#52525b" : "#ffffff"}
+              />
+            </View>
+          </View>
+          {sections.map((section) => (
+            <MinimalSection
+              key={section}
+              content={content}
+              section={section}
+              theme={theme}
+            />
+          ))}
+        </Page>
+      </Document>
+    );
+  }
+
+  const twoCol = layout === "two-column";
 
   return (
     <Document>
@@ -754,14 +1348,15 @@ function MinimalPdf({
           paddingTop: 40,
           paddingBottom: 40,
           paddingHorizontal: 44,
-          paddingLeft: theme.modernLayout === "rail" ? 52 : 44,
-          fontFamily: "Helvetica",
+          paddingLeft: layout === "rail" ? 52 : 44,
+          fontFamily: theme.font === "serif" ? PDF_SERIF : PDF_SANS,
           fontSize: 10,
           color: "#27272a",
           lineHeight: 1.45,
+          backgroundColor: theme.pageBg,
         }}
       >
-        {theme.modernLayout === "rail" ? (
+        {layout === "rail" ? (
           <View
             fixed
             style={{
@@ -769,7 +1364,7 @@ function MinimalPdf({
               left: 0,
               top: 0,
               bottom: 0,
-              width: 8,
+              width: 10,
               backgroundColor: theme.heading,
             }}
           />
@@ -781,66 +1376,83 @@ function MinimalPdf({
             borderBottomColor: theme.rule,
             paddingBottom: 12,
             marginBottom: 6,
+            flexDirection: twoCol || layout === "split" ? "row" : "column",
+            justifyContent: "space-between",
+            gap: 12,
           }}
         >
-          <Text
-            style={{
-              fontSize: 24,
-              letterSpacing: -0.4,
-              color: theme.heading,
-              fontFamily: theme.font === "serif" ? "Times-Roman" : "Helvetica",
-            }}
-          >
-            {content.personal.fullName || "Your Name"}
-          </Text>
-          {content.personal.headline ? (
-            <Text style={{ marginTop: 6, fontSize: 12, color: "#52525b" }}>
-              {content.personal.headline}
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: layout === "editorial" ? 26 : 22,
+                letterSpacing: -0.4,
+                color: theme.heading,
+                fontFamily: theme.font === "serif" ? PDF_SERIF : PDF_SANS,
+                textAlign: layout === "centered" ? "center" : "left",
+              }}
+            >
+              {name}
             </Text>
-          ) : null}
-          <View style={{ marginTop: 10 }}>
-            {theme.heading !== "#71717a" ? (
+            {content.personal.headline ? (
+              <Text
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: "#52525b",
+                  textAlign: layout === "centered" ? "center" : "left",
+                }}
+              >
+                {content.personal.headline}
+              </Text>
+            ) : null}
+          </View>
+          <View style={{ marginTop: twoCol || layout === "split" ? 0 : 10 }}>
+            {layout === "stack" && contacts.length ? (
+              <Text style={{ fontSize: 9, color: "#71717a" }}>
+                {contacts.map((item) => item.value).join("  /  ")}
+              </Text>
+            ) : (
               <ContactRows
                 content={content}
                 color={theme.heading}
                 itemColor="#52525b"
               />
-            ) : contacts.length ? (
-              <Text style={{ fontSize: 9, color: "#71717a" }}>
-                {contacts.map((item) => item.value).join("  /  ")}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-        {sections.map((section) => (
-          <View key={section}>
-            <Text
-              minPresenceAhead={28}
-              style={{
-                marginTop: 16,
-                marginBottom: 8,
-                fontSize: 9,
-                letterSpacing: 1.8,
-                textTransform: "uppercase",
-                color: theme.heading,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.rule,
-                paddingBottom: 3,
-              }}
-            >
-              {SECTION_LABELS[section]}
-            </Text>
-            {section === "skills" && theme.skillStyle === "pills" ? (
-              <SkillPillsPdf names={skills} color={theme.heading} />
-            ) : (
-              <PdfSectionBody
-                content={content}
-                section={section}
-                companyColor={theme.company}
-              />
             )}
           </View>
-        ))}
+        </View>
+        {twoCol ? (
+          <View style={{ flexDirection: "row", gap: 18 }}>
+            <View style={{ flex: 1.4 }}>
+              {main.map((section) => (
+                <MinimalSection
+                  key={section}
+                  content={content}
+                  section={section}
+                  theme={theme}
+                />
+              ))}
+            </View>
+            <View style={{ flex: 0.7 }}>
+              {side.map((section) => (
+                <MinimalSection
+                  key={section}
+                  content={content}
+                  section={section}
+                  theme={theme}
+                />
+              ))}
+            </View>
+          </View>
+        ) : (
+          sections.map((section) => (
+            <MinimalSection
+              key={section}
+              content={content}
+              section={section}
+              theme={theme}
+            />
+          ))
+        )}
       </Page>
     </Document>
   );

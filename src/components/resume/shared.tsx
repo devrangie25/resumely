@@ -107,3 +107,36 @@ export function SkillPills({
     </ul>
   );
 }
+
+export function MeterList({
+  items,
+  color,
+  trackColor,
+}: {
+  items: Array<{ id: string; label: string; width: number }>;
+  color: string;
+  trackColor?: string;
+}) {
+  if (!items.length) return null;
+
+  return (
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <li key={item.id}>
+          <div className="mb-0.5 flex items-baseline justify-between gap-2">
+            <span className="text-[10px] leading-tight">{item.label}</span>
+          </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full"
+            style={{ backgroundColor: trackColor ?? `${color}22` }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${item.width}%`, backgroundColor: color }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}

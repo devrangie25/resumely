@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { trackResumeEvent } from "@/lib/analytics/events";
 import { emptyResumeContent, parseResumeContent } from "@/lib/resume/defaults";
 import {
   isTemplateId,
@@ -26,6 +27,7 @@ async function requireUserId() {
 
 export async function createResume() {
   const { supabase, userId } = await requireUserId();
+
   const { data, error } = await supabase
     .from("resumes")
     .insert({
@@ -40,6 +42,12 @@ export async function createResume() {
   if (error || !data) {
     return { error: error?.message ?? "Unable to create resume." };
   }
+
+  await trackResumeEvent(supabase, {
+    userId,
+    type: "created",
+    resumeId: data.id,
+  });
 
   revalidatePath("/dashboard");
   redirect(`/resumes/${data.id}/edit`);
@@ -120,6 +128,13 @@ export async function duplicateResume(id: string) {
     return { error: error?.message ?? "Unable to duplicate resume." };
   }
 
+  await trackResumeEvent(supabase, {
+    userId,
+    type: "duplicated",
+    resumeId: data.id,
+    metadata: { sourceResumeId: id },
+  });
+
   revalidatePath("/dashboard");
   redirect(`/resumes/${data.id}/edit`);
 }
@@ -136,6 +151,34 @@ export async function deleteResume(id: string) {
     return { error: error.message };
   }
 
+  await trackResumeEvent(supabase, {
+    userId,
+    type: "deleted",
+    metadata: { resumeId: id },
+  });
+
   revalidatePath("/dashboard");
+  return { error: null };
+}
+
+export async function trackResumeDownload(id: string) {
+  const { supabase, userId } = await requireUserId();
+  const { data } = await supabase
+    .from("resumes")
+    .select("id")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .single();
+
+  if (!data) {
+    return { error: "Resume not found." };
+  }
+
+  await trackResumeEvent(supabase, {
+    userId,
+    type: "downloaded",
+    resumeId: id,
+  });
+
   return { error: null };
 }

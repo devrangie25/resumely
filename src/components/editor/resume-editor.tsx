@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ColorPicker } from "@/components/editor/color-picker";
+import { AccentColorPanel } from "@/components/editor/accent-color-panel";
 import { PhotoUpload } from "@/components/editor/photo-upload";
 import { TemplateCarousel } from "@/components/editor/template-carousel";
 import { DownloadPdfButton } from "@/components/pdf/download-pdf-button";
 import { PagedPreview } from "@/components/resume/paged-preview";
+import { SendResumeButton } from "@/components/resume/send-resume-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -232,7 +233,7 @@ export function ResumeEditor({
     />
   ) : (
     <div className="grid justify-items-center gap-3">
-      <PagedPreview content={content} templateId={templateId} scale={0.72} />
+      <PagedPreview content={content} templateId={templateId} fitToWidth />
       <Button
         type="button"
         variant="outline"
@@ -287,7 +288,17 @@ export function ResumeEditor({
                 <SheetHeader className="border-b">
                   <SheetTitle>Resume preview</SheetTitle>
                 </SheetHeader>
-                <div className="min-h-0 flex-1 overflow-auto px-3 py-4">
+                <div className="min-h-0 flex-1 space-y-4 overflow-auto px-3 py-4">
+                  <AccentColorPanel
+                    value={content.theme?.primary ?? ""}
+                    templateId={templateId}
+                    onChange={(primary) =>
+                      setContent((current) => ({
+                        ...current,
+                        theme: { primary },
+                      }))
+                    }
+                  />
                   {mobilePreview}
                 </div>
               </SheetContent>
@@ -298,7 +309,14 @@ export function ResumeEditor({
             >
               Full preview
             </Link>
+            <SendResumeButton
+              resumeId={resumeId}
+              content={content}
+              templateId={templateId}
+              title={title}
+            />
             <DownloadPdfButton
+              resumeId={resumeId}
               content={content}
               templateId={templateId}
               title={title}
@@ -362,16 +380,6 @@ export function ResumeEditor({
               </p>
             )}
           </div>
-          <ColorPicker
-            value={content.theme?.primary ?? ""}
-            templateId={templateId}
-            onChange={(primary) =>
-              setContent((current) => ({
-                ...current,
-                theme: { primary },
-              }))
-            }
-          />
         </div>
 
         <Accordion multiple defaultValue={["personal", "summary", "experience"]}>
@@ -1008,7 +1016,17 @@ export function ResumeEditor({
         </Accordion>
       </div>
 
-      <div className="hidden overflow-auto rounded-xl bg-zinc-100 p-6 lg:block">
+      <div className="hidden space-y-4 overflow-auto rounded-xl bg-zinc-100 p-4 lg:sticky lg:top-4 lg:block lg:max-h-[calc(100vh-2rem)] lg:self-start xl:p-6">
+        <AccentColorPanel
+          value={content.theme?.primary ?? ""}
+          templateId={templateId}
+          onChange={(primary) =>
+            setContent((current) => ({
+              ...current,
+              theme: { primary },
+            }))
+          }
+        />
         {preview}
       </div>
     </div>

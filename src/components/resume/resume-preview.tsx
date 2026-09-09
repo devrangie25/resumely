@@ -6,6 +6,7 @@ import {
   type ResumeContent,
   type TemplateId,
 } from "@/lib/resume/schema";
+import { resolveTheme } from "@/lib/resume/theme";
 import { cn } from "@/lib/utils";
 
 export function ResumePreview({
@@ -20,15 +21,17 @@ export function ResumePreview({
   chrome?: boolean;
 }) {
   const family = getTemplateFamily(templateId);
+  const theme = resolveTheme(templateId, content.theme?.primary);
 
   return (
     <div
       className={cn(
-        "w-[210mm] min-h-[297mm] bg-white text-zinc-900",
+        "w-[210mm] min-h-[297mm] text-zinc-900",
         chrome && "shadow-lg ring-1 ring-zinc-200",
-        family === "modern" ? "p-0" : "px-10 py-10",
+        theme.fullBleed ? "p-0" : "px-10 py-10",
         className,
       )}
+      style={{ backgroundColor: theme.pageBg }}
     >
       {family === "modern" ? (
         <ModernTemplate content={content} variant={templateId} />

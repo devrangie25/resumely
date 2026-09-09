@@ -36,6 +36,33 @@ export type Database = {
         }
         Relationships: []
       }
+      resume_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          resume_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          resume_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          resume_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           content: Json
@@ -71,7 +98,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_dashboard: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_public_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
