@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 import { ResumePreview } from "@/components/resume/resume-preview";
 import type { ResumeContent, TemplateId } from "@/lib/resume/schema";
@@ -22,30 +22,20 @@ export function PagedPreview({
   showPageLabel?: boolean;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
   const rulerRef = useRef<HTMLDivElement>(null);
   const [fittedScale, setFittedScale] = useState(scale);
+  const [pageHeight, setPageHeight] = useState(0);
   const [pageCount, setPageCount] = useState(1);
 
   const activeScale = fitToWidth ? fittedScale : scale;
 
-  useLayoutEffect(() => {
-    const measure = () => {
-      const documentHeight = measureRef.current?.scrollHeight ?? 0;
-      const pageHeight = rulerRef.current?.offsetHeight ?? 0;
-      if (!pageHeight) {
-        setPageCount(1);
-        return;
-      }
-      setPageCount(Math.max(1, Math.ceil(documentHeight / pageHeight - 0.02)));
-    };
+  const handlePages = useCallback((pages: number) => {
+    setPageCount((current) => (current === pages ? current : pages));
+  }, []);
 
-    const node = measureRef.current;
-    if (!node) return;
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
+  useLayoutEffect(() => {
+    const height = rulerRef.current?.offsetHeight ?? 0;
+    if (height) setPageHeight(height);
   }, [content, templateId]);
 
   useLayoutEffect(() => {
@@ -76,9 +66,6 @@ export function PagedPreview({
           ref={rulerRef}
           style={{ width: `${PAGE_WIDTH_MM}mm`, height: `${PAGE_HEIGHT_MM}mm` }}
         />
-        <div ref={measureRef}>
-          <ResumePreview content={content} templateId={templateId} chrome={false} />
-        </div>
       </div>
 
       <div className="flex flex-col items-center gap-6">
@@ -106,6 +93,9 @@ export function PagedPreview({
                   content={content}
                   templateId={templateId}
                   chrome={false}
+                  paginate
+                  pageHeight={pageHeight}
+                  onPages={index === 0 ? handlePages : undefined}
                 />
               </div>
             </div>

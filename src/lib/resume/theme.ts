@@ -11,7 +11,8 @@ export type ModernLayout =
   | "rail"
   | "light-sidebar"
   | "infographic"
-  | "header-band";
+  | "header-band"
+  | "panel";
 export type ClassicLayout =
   | "centered"
   | "stripe"
@@ -318,19 +319,19 @@ const PRESETS: Record<string, VariantPreset> = {
     fullBleed: true,
   },
   "modern-mist": {
-    primary: "#52525b",
-    sidebar: "#f4f4f5",
-    sidebarText: "#18181b",
-    accent: "#3f3f46",
-    heading: "#3f3f46",
-    company: "#52525b",
-    rule: "#d4d4d8",
+    primary: "#1e3a5f",
+    sidebar: "#e8eef5",
+    sidebarText: "#1e293b",
+    accent: "#1e3a5f",
+    heading: "#1e3a5f",
+    company: "#334155",
+    rule: "#d5dee8",
     pageBg: "#ffffff",
     photo: "rounded",
-    modernLayout: "light-sidebar",
+    modernLayout: "panel",
     classicLayout: "centered",
     minimalLayout: "stack",
-    skillStyle: "list",
+    skillStyle: "pills",
     headingStyle: "plain",
     splitHeader: false,
     classicAlign: "left",

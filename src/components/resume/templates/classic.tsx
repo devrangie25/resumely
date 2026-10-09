@@ -73,7 +73,7 @@ function ExperienceList({
   return (
     <div className={compact ? "space-y-2.5" : "space-y-3"}>
       {content.experience.map((item) => (
-        <div key={item.id}>
+        <div key={item.id} data-resume-block="">
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-semibold">
               {joinNonEmpty([item.title, item.company], ", ")}
@@ -96,7 +96,7 @@ function TimelineExperience({ content }: { content: ResumeContent }) {
   return (
     <div className="space-y-3">
       {content.experience.map((item) => (
-        <div key={item.id} className="grid grid-cols-[28mm_1fr] gap-4">
+        <div key={item.id} data-resume-block="" className="grid grid-cols-[28mm_1fr] gap-4">
           <p className="pt-0.5 text-[10px] leading-snug font-semibold tracking-wide uppercase">
             {dateRange(item.startDate, item.endDate, item.current)}
           </p>
@@ -117,7 +117,7 @@ function EducationList({ content }: { content: ResumeContent }) {
   return (
     <div className="space-y-2">
       {content.education.map((item) => (
-        <div key={item.id}>
+        <div key={item.id} data-resume-block="">
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-semibold">{item.school}</p>
             <p className="shrink-0 text-[10.5px]">
@@ -136,7 +136,7 @@ function TimelineEducation({ content }: { content: ResumeContent }) {
   return (
     <div className="space-y-2">
       {content.education.map((item) => (
-        <div key={item.id} className="grid grid-cols-[28mm_1fr] gap-4">
+        <div key={item.id} data-resume-block="" className="grid grid-cols-[28mm_1fr] gap-4">
           <p className="text-[10px] font-semibold tracking-wide uppercase">
             {dateRange(item.startDate, item.endDate)}
           </p>
@@ -185,7 +185,7 @@ function SectionBody({
       return (
         <div className="space-y-2">
           {content.projects.map((item) => (
-            <div key={item.id}>
+            <div key={item.id} data-resume-block="">
               <p className="font-semibold">{joinNonEmpty([item.name, item.url], " — ")}</p>
               {item.description ? <p>{item.description}</p> : null}
               <BulletList items={item.bullets} />
@@ -197,7 +197,7 @@ function SectionBody({
       return (
         <div className="space-y-1.5">
           {content.certifications.map((item) => (
-            <p key={item.id}>
+            <p key={item.id} data-resume-block="">
               <span className="font-semibold">{item.name}</span>
               {item.issuer ? `, ${item.issuer}` : ""}
               {item.date ? ` (${item.date})` : ""}
@@ -220,7 +220,7 @@ function SectionBody({
       return (
         <div className="space-y-1.5">
           {content.awards.map((item) => (
-            <p key={item.id}>
+            <p key={item.id} data-resume-block="">
               <span className="font-semibold">{item.title}</span>
               {item.issuer ? ` — ${item.issuer}` : ""}
               {item.date ? ` (${item.date})` : ""}
@@ -233,7 +233,7 @@ function SectionBody({
       return (
         <div className="space-y-1.5">
           {content.references.map((item) => (
-            <p key={item.id}>
+            <p key={item.id} data-resume-block="">
               {joinNonEmpty(
                 [item.name, item.title, item.company, item.email, item.phone],
                 " · ",
@@ -260,7 +260,7 @@ export function ClassicTemplate({
   const gap = spacious ? "mt-6" : compact ? "mt-3.5" : "mt-4";
 
   const body = sections.map((section) => (
-    <section key={section} className={gap}>
+    <section key={section} data-resume-block="" className={gap}>
       <Heading id={section} theme={theme} />
       <div className="mt-2">
         <SectionBody
@@ -290,7 +290,7 @@ export function ClassicTemplate({
           </ul>
         </aside>
         <div className="px-8 py-10">
-          <header>
+          <header data-resume-block="">
             <h1
               className="text-[26px] leading-none font-semibold tracking-tight"
               style={{ color: theme.heading }}
@@ -316,6 +316,7 @@ export function ClassicTemplate({
         style={{ backgroundColor: theme.pageBg }}
       >
         <header
+          data-resume-block=""
           className="px-10 py-8 text-center"
           style={{ backgroundColor: theme.sidebar, color: theme.sidebarText }}
         >
@@ -347,6 +348,7 @@ export function ClassicTemplate({
       )}
     >
       <header
+        data-resume-block=""
         className={theme.classicAlign === "center" ? "text-center" : "text-left"}
       >
         {theme.classicLayout === "gold" ? (

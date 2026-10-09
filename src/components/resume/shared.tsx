@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import type { ResumeContent } from "@/lib/resume/schema";
+import { isLightColor } from "@/lib/resume/theme";
 
 export function joinNonEmpty(values: Array<string | undefined>, separator = " · ") {
   return values.map((value) => value?.trim()).filter(Boolean).join(separator);
@@ -132,7 +133,11 @@ export function MeterList({
           </div>
           <div
             className="h-1.5 overflow-hidden rounded-full"
-            style={{ backgroundColor: trackColor ?? `${color}22` }}
+            style={{
+              backgroundColor:
+                trackColor ??
+                (isLightColor(color) ? "rgba(255,255,255,0.2)" : `${color}22`),
+            }}
           >
             <div
               className="h-full rounded-full"

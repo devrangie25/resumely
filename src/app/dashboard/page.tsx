@@ -1,6 +1,6 @@
 import { AppHeader } from "@/components/app-header";
 import { CreateResumeButton } from "@/components/dashboard/create-resume-button";
-import { ResumeCard } from "@/components/dashboard/resume-card";
+import { ResumeList } from "@/components/dashboard/resume-list";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -32,18 +32,14 @@ export default async function DashboardPage() {
         </div>
 
         {resumes?.length ? (
-          <ul className="mt-8 grid gap-4 md:grid-cols-2">
-            {resumes.map((resume) => (
-              <li key={resume.id}>
-                <ResumeCard
-                  id={resume.id}
-                  title={resume.title}
-                  templateId={resume.template_id}
-                  updatedAt={resume.updated_at}
-                />
-              </li>
-            ))}
-          </ul>
+          <ResumeList
+            resumes={resumes.map((resume) => ({
+              id: resume.id,
+              title: resume.title,
+              templateId: resume.template_id,
+              updatedAt: resume.updated_at,
+            }))}
+          />
         ) : (
           <div className="mt-12 rounded-xl border border-dashed p-10 text-center">
             <h2 className="font-heading text-lg font-medium">No resumes yet</h2>

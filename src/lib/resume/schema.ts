@@ -86,7 +86,7 @@ export const TEMPLATE_VARIANTS = [
     id: "modern-mist",
     family: "modern",
     label: "Mist",
-    description: "Light grey designer panel with a rounded photo.",
+    description: "Soft header band, rounded photo, and a bordered skills card.",
   },
   {
     id: "minimal",

@@ -68,7 +68,7 @@ function SectionBody({
       return (
         <div className="space-y-5">
           {content.experience.map((item) => (
-            <div key={item.id}>
+            <div key={item.id} data-resume-block="">
               <div className="flex items-baseline justify-between gap-4">
                 <p className="text-[13px] font-medium text-zinc-950">{item.title}</p>
                 <p className="shrink-0 text-[10.5px] text-zinc-500">
@@ -87,7 +87,7 @@ function SectionBody({
       return (
         <div className="space-y-3">
           {content.education.map((item) => (
-            <div key={item.id}>
+            <div key={item.id} data-resume-block="">
               <div className="flex items-baseline justify-between gap-4">
                 <p className="font-medium text-zinc-950">{item.school}</p>
                 <p className="shrink-0 text-[10.5px] text-zinc-500">
@@ -112,7 +112,7 @@ function SectionBody({
       return (
         <div className="space-y-3">
           {content.projects.map((item) => (
-            <div key={item.id}>
+            <div key={item.id} data-resume-block="">
               <p className="font-medium text-zinc-950">{item.name}</p>
               {item.url ? (
                 <p className="text-[10.5px]" style={{ color: theme.company }}>
@@ -127,7 +127,7 @@ function SectionBody({
       );
     case "certifications":
       return content.certifications.map((item) => (
-        <p key={item.id} className="mb-1">
+        <p key={item.id} data-resume-block="" className="mb-1">
           {joinNonEmpty([item.name, item.issuer, item.date], " · ")}
         </p>
       ));
@@ -144,14 +144,14 @@ function SectionBody({
       );
     case "awards":
       return content.awards.map((item) => (
-        <p key={item.id} className="mb-1">
+        <p key={item.id} data-resume-block="" className="mb-1">
           {joinNonEmpty([item.title, item.issuer, item.date], " · ")}
           {item.description ? ` — ${item.description}` : ""}
         </p>
       ));
     case "references":
       return content.references.map((item) => (
-        <p key={item.id} className="mb-1">
+        <p key={item.id} data-resume-block="" className="mb-1">
           {joinNonEmpty([item.name, item.title, item.company, item.email, item.phone])}
         </p>
       ));
@@ -223,7 +223,7 @@ export function MinimalTemplate({
           serif ? "font-serif" : "font-sans",
         )}
       >
-        <header className="mb-6 grid grid-cols-[1.4fr_0.6fr] items-end gap-6 border-b pb-5" style={{ borderColor: theme.rule }}>
+        <header data-resume-block="" className="mb-6 grid grid-cols-[1.4fr_0.6fr] items-end gap-6 border-b pb-5" style={{ borderColor: theme.rule }}>
           <div>
             <h1 className="text-[28px] leading-none font-light tracking-tight text-zinc-950">
               {name}
@@ -237,7 +237,7 @@ export function MinimalTemplate({
         <div className="grid grid-cols-[1.4fr_0.6fr] gap-8">
           <div>
             {mainSections.map((section) => (
-              <section key={section} className="mt-6 first:mt-0">
+              <section key={section} data-resume-block="" className="mt-6 first:mt-0">
                 <Heading id={section} theme={theme} />
                 <SectionBody content={content} section={section} theme={theme} />
               </section>
@@ -245,7 +245,7 @@ export function MinimalTemplate({
           </div>
           <aside>
             {sideSections.map((section) => (
-              <section key={section} className="mt-6 first:mt-0">
+              <section key={section} data-resume-block="" className="mt-6 first:mt-0">
                 <Heading id={section} theme={theme} />
                 <SectionBody content={content} section={section} theme={theme} />
               </section>
@@ -261,7 +261,7 @@ export function MinimalTemplate({
       <article className="flex min-h-[297mm] font-sans text-[11.5px] leading-relaxed text-zinc-800">
         <div className="w-3 shrink-0" style={{ backgroundColor: theme.heading }} />
         <div className="flex-1 px-8 py-10">
-          <header className="mb-8">
+          <header data-resume-block="" className="mb-8">
             <h1 className="text-[28px] leading-none font-medium tracking-tight text-zinc-950">
               {name}
             </h1>
@@ -273,7 +273,7 @@ export function MinimalTemplate({
             </div>
           </header>
           {sections.map((section) => (
-            <section key={section} className="mt-7">
+            <section key={section} data-resume-block="" className="mt-7">
               <Heading id={section} theme={theme} />
               <SectionBody content={content} section={section} theme={theme} />
             </section>
@@ -287,6 +287,7 @@ export function MinimalTemplate({
     return (
       <article className="min-h-[297mm] font-sans text-[11.5px] leading-relaxed text-zinc-800">
         <header
+          data-resume-block=""
           className="px-10 py-8"
           style={{ backgroundColor: theme.sidebar, color: theme.sidebarText }}
         >
@@ -312,7 +313,7 @@ export function MinimalTemplate({
         </header>
         <div className="px-10 py-8">
           {sections.map((section) => (
-            <section key={section} className="mt-7 first:mt-0">
+            <section key={section} data-resume-block="" className="mt-7 first:mt-0">
               <Heading id={section} theme={theme} />
               <SectionBody content={content} section={section} theme={theme} />
             </section>
@@ -328,7 +329,7 @@ export function MinimalTemplate({
         className="min-h-[297mm] font-sans text-[11.5px] leading-relaxed text-zinc-800"
         style={{ backgroundColor: theme.pageBg }}
       >
-        <header className="px-10 py-9" style={{ backgroundColor: theme.sidebar }}>
+        <header data-resume-block="" className="px-10 py-9" style={{ backgroundColor: theme.sidebar }}>
           <p
             className="text-[10px] tracking-[0.28em] uppercase"
             style={{ color: theme.accent }}
@@ -347,7 +348,7 @@ export function MinimalTemplate({
         </header>
         <div className="px-10 py-8">
           {sections.map((section) => (
-            <section key={section} className="mt-7 first:mt-0">
+            <section key={section} data-resume-block="" className="mt-7 first:mt-0">
               <Heading id={section} theme={theme} />
               <SectionBody content={content} section={section} theme={theme} />
             </section>
@@ -365,6 +366,7 @@ export function MinimalTemplate({
       )}
     >
       <header
+        data-resume-block=""
         className={cn(
           "pb-5",
           layout === "centered" && "text-center",
@@ -444,7 +446,7 @@ export function MinimalTemplate({
       </header>
 
       {sections.map((section) => (
-        <section key={section} className="mt-7">
+        <section key={section} data-resume-block="" className="mt-7">
           <Heading
             id={section}
             theme={theme}

@@ -126,7 +126,7 @@ function ExperienceBlock({
   return (
     <div className="space-y-3.5">
       {content.experience.map((item) => (
-        <div key={item.id}>
+        <div key={item.id} data-resume-block="">
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-semibold text-zinc-900">{item.title}</p>
             <p className="shrink-0 text-[10px] text-zinc-500">
@@ -147,7 +147,7 @@ function EducationBlock({ content }: { content: ResumeContent }) {
   return (
     <div className="space-y-2.5">
       {content.education.map((item) => (
-        <div key={item.id}>
+        <div key={item.id} data-resume-block="">
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-semibold text-zinc-900">{item.school}</p>
             <p className="shrink-0 text-[10px] text-zinc-500">
@@ -172,7 +172,7 @@ function ProjectBlock({
   return (
     <div className="space-y-2.5">
       {content.projects.map((item) => (
-        <div key={item.id}>
+        <div key={item.id} data-resume-block="">
           <p className="font-semibold text-zinc-900">{item.name}</p>
           {item.url ? (
             <p className="text-[10.5px]" style={{ color: companyColor }}>
@@ -191,7 +191,7 @@ function AwardsBlock({ content }: { content: ResumeContent }) {
   return (
     <>
       {content.awards.map((item) => (
-        <p key={item.id} className="mb-1.5">
+        <p key={item.id} data-resume-block="" className="mb-1.5">
           <span className="font-semibold">{item.title}</span>
           {item.issuer ? ` — ${item.issuer}` : ""}
           {item.date ? ` (${item.date})` : ""}
@@ -206,7 +206,7 @@ function ReferencesBlock({ content }: { content: ResumeContent }) {
   return (
     <>
       {content.references.map((item) => (
-        <p key={item.id} className="mb-1.5">
+        <p key={item.id} data-resume-block="" className="mb-1.5">
           {joinNonEmpty([item.name, item.title, item.company, item.email, item.phone])}
         </p>
       ))}
@@ -230,37 +230,37 @@ function MainBody({
   return (
     <>
       {sections.includes("summary") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="summary" color={heading} style={headingStyle} />
           <p>{content.summary}</p>
         </section>
       ) : null}
       {sections.includes("experience") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="experience" color={heading} style={headingStyle} />
           <ExperienceBlock content={content} companyColor={company} />
         </section>
       ) : null}
       {sections.includes("education") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="education" color={heading} style={headingStyle} />
           <EducationBlock content={content} />
         </section>
       ) : null}
       {sections.includes("projects") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="projects" color={heading} style={headingStyle} />
           <ProjectBlock content={content} companyColor={company} />
         </section>
       ) : null}
       {sections.includes("awards") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="awards" color={heading} style={headingStyle} />
           <AwardsBlock content={content} />
         </section>
       ) : null}
       {sections.includes("references") ? (
-        <section className="mt-4 first:mt-0">
+        <section data-resume-block="" className="mt-4 first:mt-0">
           <Heading id="references" color={heading} style={headingStyle} />
           <ReferencesBlock content={content} />
         </section>
@@ -404,7 +404,7 @@ function ProfileAside({
           ) : null}
         </>
       ) : null}
-      <div className={showName ? "mt-8" : "mt-2"}>
+      <div data-resume-block="" className={showName ? "mt-8" : "mt-2"}>
         <h2
           className="mb-2 text-[10px] font-semibold tracking-[0.18em] uppercase"
           style={{ color: theme.accent }}
@@ -444,7 +444,7 @@ function SidebarMeta({
   return (
     <>
       {sections.includes("skills") ? (
-        <div className="mt-7">
+        <div data-resume-block="" className="mt-7">
           <h2
             className="mb-2 text-[10px] font-semibold tracking-[0.18em] uppercase"
             style={{ color: headingColor }}
@@ -455,7 +455,7 @@ function SidebarMeta({
         </div>
       ) : null}
       {sections.includes("languages") ? (
-        <div className="mt-7">
+        <div data-resume-block="" className="mt-7">
           <h2
             className="mb-2 text-[10px] font-semibold tracking-[0.18em] uppercase"
             style={{ color: headingColor }}
@@ -470,7 +470,7 @@ function SidebarMeta({
         </div>
       ) : null}
       {sections.includes("certifications") ? (
-        <div className="mt-7">
+        <div data-resume-block="" className="mt-7">
           <h2
             className="mb-2 text-[10px] font-semibold tracking-[0.18em] uppercase"
             style={{ color: headingColor }}
@@ -518,6 +518,7 @@ export function ModernTemplate({
     return (
       <article className="min-h-[297mm] font-sans text-[11px] leading-relaxed text-zinc-800">
         <header
+          data-resume-block=""
           className="flex items-center gap-5 px-8 py-7"
           style={{ backgroundColor: theme.sidebar, color: theme.sidebarText }}
         >
@@ -574,7 +575,7 @@ export function ModernTemplate({
       <article className="flex min-h-[297mm] font-sans text-[11px] leading-relaxed text-zinc-800">
         <div className="w-2.5 shrink-0" style={{ backgroundColor: theme.sidebar }} />
         <div className="flex-1 px-8 py-8">
-          <header className="mb-6 flex items-start gap-5">
+          <header data-resume-block="" className="mb-6 flex items-start gap-5">
             {photoUrl ? (
               <Photo
                 url={photoUrl}
@@ -607,19 +608,19 @@ export function ModernTemplate({
             headingStyle={headingLook}
           />
           {sidebarSections.includes("skills") ? (
-            <section className="mt-4">
+            <section data-resume-block="" className="mt-4">
               <Heading id="skills" color={theme.heading} style={headingLook} />
               <SkillBlock content={content} theme={theme} color={theme.heading} />
             </section>
           ) : null}
           {sidebarSections.includes("languages") ? (
-            <section className="mt-4">
+            <section data-resume-block="" className="mt-4">
               <Heading id="languages" color={theme.heading} style={headingLook} />
               <LanguageBlock content={content} />
             </section>
           ) : null}
           {sidebarSections.includes("certifications") ? (
-            <section className="mt-4">
+            <section data-resume-block="" className="mt-4">
               <Heading id="certifications" color={theme.heading} style={headingLook} />
               {content.certifications.map((item) => (
                 <p key={item.id} className="mb-1">
@@ -637,6 +638,7 @@ export function ModernTemplate({
     return (
       <article className="min-h-[297mm] font-sans text-[11px] leading-relaxed text-zinc-800">
         <header
+          data-resume-block=""
           className="flex flex-col items-center px-8 py-8 text-center"
           style={{ backgroundColor: theme.sidebar, color: theme.sidebarText }}
         >
@@ -688,11 +690,12 @@ export function ModernTemplate({
   if (theme.modernLayout === "header-band") {
     return (
       <article
-        className="min-h-[297mm] font-sans text-[11px] leading-relaxed text-zinc-800"
+        data-resume-stretch-rows="auto auto 1fr"
+        className="grid min-h-[297mm] grid-rows-[auto_auto_1fr] font-sans text-[11px] leading-relaxed text-zinc-800"
         style={{ backgroundColor: theme.pageBg }}
       >
         <div className="h-2.5" style={{ backgroundColor: theme.heading }} />
-        <header className="flex items-start justify-between gap-6 px-8 pt-7 pb-5">
+        <header data-resume-block="" className="flex items-start justify-between gap-6 px-8 pt-7 pb-5">
           <div>
             <h1 className="text-[26px] leading-tight font-semibold tracking-tight text-zinc-950">
               {content.personal.fullName || "Your Name"}
@@ -717,7 +720,7 @@ export function ModernTemplate({
             />
           ) : null}
         </header>
-        <div className="grid grid-cols-[1fr_58mm] gap-7 px-8 pb-8">
+        <div className="grid h-full min-h-0 grid-cols-[1fr_58mm] items-stretch gap-7 px-8 pb-8">
           <div>
             <MainBody
               content={content}
@@ -727,7 +730,69 @@ export function ModernTemplate({
               headingStyle="bar"
             />
           </div>
-          <aside className="rounded-xl px-4 py-4" style={{ backgroundColor: theme.sidebar }}>
+          <aside
+            data-resume-sidebar-full=""
+            className="h-full min-h-full self-stretch rounded-xl px-4 py-4"
+            style={{ backgroundColor: theme.sidebar }}
+          >
+            <SidebarMeta
+              content={content}
+              sections={sidebarSections}
+              theme={theme}
+              headingColor={theme.heading}
+            />
+          </aside>
+        </div>
+      </article>
+    );
+  }
+
+  if (theme.modernLayout === "panel") {
+    return (
+      <article className="min-h-[297mm] font-sans text-[11px] leading-relaxed text-zinc-800">
+        <header
+          data-resume-block=""
+          className="flex items-center gap-6 px-8 py-7"
+          style={{ backgroundColor: theme.sidebar, color: theme.sidebarText }}
+        >
+          {photoUrl ? (
+            <Photo
+              url={photoUrl}
+              name={content.personal.fullName}
+              shape={theme.photo}
+              className="size-20 shrink-0"
+            />
+          ) : null}
+          <div className="min-w-0">
+            <h1 className="text-[26px] leading-tight font-semibold tracking-tight text-zinc-950">
+              {content.personal.fullName || "Your Name"}
+            </h1>
+            {content.personal.headline ? (
+              <p className="mt-1 text-[12px]" style={{ color: theme.heading }}>
+                {content.personal.headline}
+              </p>
+            ) : null}
+            <ContactList
+              content={content}
+              className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-zinc-700"
+              iconColor={theme.heading}
+              compact
+            />
+          </div>
+        </header>
+        <div className="grid grid-cols-[1fr_64mm] gap-8 px-8 py-7">
+          <div>
+            <MainBody
+              content={content}
+              sections={mainSections}
+              heading={theme.heading}
+              company={theme.company}
+            />
+          </div>
+          <aside
+            className="h-fit rounded-2xl border px-4 py-4"
+            style={{ borderColor: theme.rule, backgroundColor: theme.sidebar }}
+          >
             <SidebarMeta
               content={content}
               sections={sidebarSections}
@@ -761,7 +826,7 @@ export function ModernTemplate({
       {right ? null : aside}
       <div className="bg-white px-7 py-8">
         {right ? (
-          <header className="mb-5">
+          <header data-resume-block="" className="mb-5">
             <h1 className="text-[26px] leading-tight font-semibold tracking-tight text-zinc-950">
               {content.personal.fullName || "Your Name"}
             </h1>
