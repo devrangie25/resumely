@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 
 import { createClient } from "@supabase/supabase-js";
 
-import { moreMultipageSampleResumes } from "../src/lib/resume/multipage-samples-more.ts";
-import { multipageSampleResumes as originalSampleResumes } from "../src/lib/resume/multipage-samples.ts";
+import { moreMultipageSampleResumes } from "../src/lib/resume/multipage-samples-more";
+import { multipageSampleResumes as originalSampleResumes } from "../src/lib/resume/multipage-samples";
 
 const multipageSampleResumes = [
   ...originalSampleResumes,
